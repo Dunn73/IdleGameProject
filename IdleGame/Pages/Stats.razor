@@ -1,0 +1,107 @@
+﻿@page "/stats"
+@using Models.GlobalVariables;
+@inject HttpClient Http
+@inject GlobalBool GlobalVariable;
+
+<PageTitle>Home</PageTitle>
+
+<style>
+    .animation-box {
+    }
+    .targeted-animation {
+        background-color: aliceblue;
+    pre {
+        overflow: hidden;
+    }
+    }
+</style>
+<div class="targeted-animation" style="width: 400px; height: 400px;">
+    <div>
+        <div>
+            <pre>
+                @if (frames != null && currentFrameIndex < frames.Length){
+                    foreach (var row in frames[currentFrameIndex]) {
+                        @string.Join("", row)
+                        <br />
+                    }
+                }
+            </pre>
+        </div>
+
+        <div style="float:right;">
+            <pre>
+                @if (frames != null && currentFrameIndex < frames.Length){
+                    foreach (var row in frames[currentFrameIndex]) {
+                        @string.Join("", row)
+                        <br />
+                    }
+                }
+            </pre>
+        </div>
+    </div>
+
+    <div class="right-animation">
+        <div class="stick-figure-animation">
+            <pre>
+                @if (frames != null && currentFrameIndex < frames.Length){
+                    foreach (var row in frames[currentFrameIndex]) {
+                        @string.Join("", row)
+                        <br />
+                    }
+                }
+            </pre>
+        </div>
+
+        <div class="second-animation">
+            <pre>
+                @if (frames != null && currentFrameIndex < frames.Length){
+                    foreach (var row in frames[currentFrameIndex]) {
+                        @string.Join("", row)
+                        <br />
+                    }
+                }
+            </pre>
+        </div>
+
+        <div class="second-animation">
+            <pre>
+                @if (frames != null && currentFrameIndex < frames.Length){
+                    foreach (var row in frames[currentFrameIndex]) {
+                        @string.Join("", row)
+                        <br />
+                    }
+                }
+            </pre>
+        </div>
+    </div>
+</div>
+
+<button @onclick="StartAnimation">Animate</button>
+
+@code {
+    private char[][][] frames;
+    private int currentFrameIndex = 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+       await PopulateFramesAsync();
+    }
+
+    private async Task PopulateFramesAsync()
+    {
+        frames = await Http.GetFromJsonAsync<char[][][]>("sample-data/RangerUpdate.json");
+    }
+
+    private async Task StartAnimation()
+    {   
+        while (true){
+            await Task.Delay(40);
+            currentFrameIndex++;
+            if (currentFrameIndex >= frames.Length) {
+                currentFrameIndex = 0;
+            }
+            //await InvokeAsync(StateHasChanged);
+            StateHasChanged();
+        }
+    }
+} 

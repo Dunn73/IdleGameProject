@@ -1,0 +1,63 @@
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+@using Models.SaveState;
+@using Models.ProfileInfo;
+
+<div class="modal fade show" tabindex="-1" role="dialog" style="display: block; background-color: rgba(0, 0, 0, 0.5)">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">@Title</h5>
+            </div>
+            <div class="modal-body">
+                <div style="display: flex;">
+                    <div style="flex: 1; margin-top: 3px;">
+                        <label for="title">Title:</label>
+                        <select id="title" @bind="selectedTitle">
+                            <option value="King">King</option>
+                            <option value="Queen">Queen</option>
+                            <option value="Prince">Prince</option>
+                            <option value="Princess">Princess</option>
+                        </select>
+                    </div>
+                    <div style="flex: 1;"> 
+                        <div style="display: flex; align-items: center;">
+                            <label for="name" style="margin-right: 5px;">Name:</label>
+                            <input type="text" id="name" @bind="name"  />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div style="display: flex; align-items: center;">
+                    <label for="name" style="margin-right: 5px;">Kingdom Name:</label>
+                    <input type="text" id="name" @bind="kingdomName"  />
+                </div>
+                <button type="button" class="btn btn-secondary" @onclick="CloseModal">Begin</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public string Title { get; set; }
+
+    [Parameter]
+    public string Message { get; set; }
+
+    [Parameter]
+    public EventCallback OnClose { get; set; }
+    string name ="";
+    string kingdomName ="";
+    string selectedTitle = "King";
+
+    private async Task CloseModal()
+    {
+        var saveState = await localStorage.GetItemAsync<EmptySave>("saveState");
+        saveState.PlayerInfo.Title = selectedTitle;
+        saveState.PlayerInfo.Name = name;
+        saveState.PlayerInfo.KingdomName = kingdomName;
+        await localStorage.SetItemAsync<EmptySave>("saveState", saveState);
+        await OnClose.InvokeAsync();
+    }
+}

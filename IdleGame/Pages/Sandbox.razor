@@ -1,0 +1,327 @@
+@page "/testing"
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+@using Models.Battalions;
+@using Models.Amunitions;
+@using Models.Army;
+@using Models.Stats;
+@using Models.Multipliers;
+@using Models.SaveState;
+<PageTitle>Combat</PageTitle>
+
+<style>
+    .testDiv {
+        background-color: #e8fcee;
+        width: 380px;
+        height: 380px;
+        font-size: 13px;
+        
+       
+        
+        
+    }
+    .oddLine {
+        background-color: #a3d9b3;
+    }
+    .evenLine {
+        background-color: #82c294;
+    }
+    body {
+        background-color: #e8fcee;;
+    }
+</style>
+
+<div class="testDiv">
+
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Stats</th>
+                <th>Player</th>
+                <th>Opponent</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr class="oddLine">
+                <td>Health
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="tomato" class="bi bi-heart-fill" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314"/>
+                    </svg>
+                </td>
+                <td>@PlayerAttacking.Health</td>
+                <td>@EnemyDefending.Health</td>
+            </tr>
+            <tr class="evenLine">
+                <td>Magic Attack
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="darkorange" class="bi bi-fire" viewBox="0 0 16 16">
+                <path d="M8 16c3.314 0 6-2 6-5.5 0-1.5-.5-4-2.5-6 .25 1.5-1.25 2-1.25 2C11 4 9 .5 6 0c.357 2 .5 4-2 6-1.25 1-2 2.729-2 4.5C2 14 4.686 16 8 16m0-1c-1.657 0-3-1-3-2.75 0-.75.25-2 1.25-3C6.125 10 7 10.5 7 10.5c-.375-1.25.5-3.25 2-3.5-.179 1-.25 2 1 3 .625.5 1 1.364 1 2.25C11 14 9.657 15 8 15"/>
+                </svg>
+                </td>
+                <td>@PlayerAttacking.MagicOffence</td>
+                <td>@EnemyDefending.MagicOffence</td>
+            </tr>
+            <tr class="oddLine">
+                <td>Magic Defence
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="darkorange" class="bi bi-fire" viewBox="0 0 16 16">
+                <path d="M8 16c3.314 0 6-2 6-5.5 0-1.5-.5-4-2.5-6 .25 1.5-1.25 2-1.25 2C11 4 9 .5 6 0c.357 2 .5 4-2 6-1.25 1-2 2.729-2 4.5C2 14 4.686 16 8 16m0-1c-1.657 0-3-1-3-2.75 0-.75.25-2 1.25-3C6.125 10 7 10.5 7 10.5c-.375-1.25.5-3.25 2-3.5-.179 1-.25 2 1 3 .625.5 1 1.364 1 2.25C11 14 9.657 15 8 15"/>
+                </svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="blue" class="bi bi-shield-plus" viewBox="0 0 16 16">
+                <path d="M5.338 1.59a61 61 0 0 0-2.837.856.48.48 0 0 0-.328.39c-.554 4.157.726 7.19 2.253 9.188a10.7 10.7 0 0 0 2.287 2.233c.346.244.652.42.893.533q.18.085.293.118a1 1 0 0 0 .101.025 1 1 0 0 0 .1-.025q.114-.034.294-.118c.24-.113.547-.29.893-.533a10.7 10.7 0 0 0 2.287-2.233c1.527-1.997 2.807-5.031 2.253-9.188a.48.48 0 0 0-.328-.39c-.651-.213-1.75-.56-2.837-.855C9.552 1.29 8.531 1.067 8 1.067c-.53 0-1.552.223-2.662.524zM5.072.56C6.157.265 7.31 0 8 0s1.843.265 2.928.56c1.11.3 2.229.655 2.887.87a1.54 1.54 0 0 1 1.044 1.262c.596 4.477-.787 7.795-2.465 9.99a11.8 11.8 0 0 1-2.517 2.453 7 7 0 0 1-1.048.625c-.28.132-.581.24-.829.24s-.548-.108-.829-.24a7 7 0 0 1-1.048-.625 11.8 11.8 0 0 1-2.517-2.453C1.928 10.487.545 7.169 1.141 2.692A1.54 1.54 0 0 1 2.185 1.43 63 63 0 0 1 5.072.56"/>
+                <path d="M8 4.5a.5.5 0 0 1 .5.5v1.5H10a.5.5 0 0 1 0 1H8.5V9a.5.5 0 0 1-1 0V7.5H6a.5.5 0 0 1 0-1h1.5V5a.5.5 0 0 1 .5-.5"/>
+                </svg>
+                </td>
+                <td>@PlayerAttacking.MagicDefence</td>
+                <td>@EnemyDefending.MagicDefence</td>
+            </tr>
+            <tr class="evenLine">
+                <td>Ranged Attack
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-heart-arrow" viewBox="0 0 16 16">
+                    <path d="M6.707 9h4.364c-.536 1.573 2.028 3.806 4.929-.5-2.9-4.306-5.465-2.073-4.929-.5H6.707L4.854 6.146a.5.5 0 1 0-.708.708L5.293 8h-.586L2.854 6.146a.5.5 0 1 0-.708.708L3.293 8h-.586L.854 6.146a.5.5 0 1 0-.708.708L1.793 8.5.146 10.146a.5.5 0 0 0 .708.708L2.707 9h.586l-1.147 1.146a.5.5 0 0 0 .708.708L4.707 9h.586l-1.147 1.146a.5.5 0 0 0 .708.708z"/>
+                    </svg>
+                </td>
+                <td>@PlayerAttacking.RangeOffence</td>
+                <td>@EnemyDefending.RangeOffence</td>
+            </tr>
+            <tr class="oddLine">
+                <td>Ranged Defence
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-heart-arrow" viewBox="0 0 16 16">
+                    <path d="M6.707 9h4.364c-.536 1.573 2.028 3.806 4.929-.5-2.9-4.306-5.465-2.073-4.929-.5H6.707L4.854 6.146a.5.5 0 1 0-.708.708L5.293 8h-.586L2.854 6.146a.5.5 0 1 0-.708.708L3.293 8h-.586L.854 6.146a.5.5 0 1 0-.708.708L1.793 8.5.146 10.146a.5.5 0 0 0 .708.708L2.707 9h.586l-1.147 1.146a.5.5 0 0 0 .708.708L4.707 9h.586l-1.147 1.146a.5.5 0 0 0 .708.708z"/>
+                    </svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="blue" class="bi bi-shield-plus" viewBox="0 0 16 16">
+                    <path d="M5.338 1.59a61 61 0 0 0-2.837.856.48.48 0 0 0-.328.39c-.554 4.157.726 7.19 2.253 9.188a10.7 10.7 0 0 0 2.287 2.233c.346.244.652.42.893.533q.18.085.293.118a1 1 0 0 0 .101.025 1 1 0 0 0 .1-.025q.114-.034.294-.118c.24-.113.547-.29.893-.533a10.7 10.7 0 0 0 2.287-2.233c1.527-1.997 2.807-5.031 2.253-9.188a.48.48 0 0 0-.328-.39c-.651-.213-1.75-.56-2.837-.855C9.552 1.29 8.531 1.067 8 1.067c-.53 0-1.552.223-2.662.524zM5.072.56C6.157.265 7.31 0 8 0s1.843.265 2.928.56c1.11.3 2.229.655 2.887.87a1.54 1.54 0 0 1 1.044 1.262c.596 4.477-.787 7.795-2.465 9.99a11.8 11.8 0 0 1-2.517 2.453 7 7 0 0 1-1.048.625c-.28.132-.581.24-.829.24s-.548-.108-.829-.24a7 7 0 0 1-1.048-.625 11.8 11.8 0 0 1-2.517-2.453C1.928 10.487.545 7.169 1.141 2.692A1.54 1.54 0 0 1 2.185 1.43 63 63 0 0 1 5.072.56"/>
+                    <path d="M8 4.5a.5.5 0 0 1 .5.5v1.5H10a.5.5 0 0 1 0 1H8.5V9a.5.5 0 0 1-1 0V7.5H6a.5.5 0 0 1 0-1h1.5V5a.5.5 0 0 1 .5-.5"/>
+                    </svg>
+                </td>
+                <td>@PlayerAttacking.RangeDefence</td>
+                <td>@EnemyDefending.RangeDefence</td>
+            </tr>
+            <tr class="evenLine">
+                <td>Melee Attack
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="gray" class="bi bi-hammer" viewBox="0 0 16 16">
+                    <path d="M9.972 2.508a.5.5 0 0 0-.16-.556l-.178-.129a5 5 0 0 0-2.076-.783C6.215.862 4.504 1.229 2.84 3.133H1.786a.5.5 0 0 0-.354.147L.146 4.567a.5.5 0 0 0 0 .706l2.571 2.579a.5.5 0 0 0 .708 0l1.286-1.29a.5.5 0 0 0 .146-.353V5.57l8.387 8.873A.5.5 0 0 0 14 14.5l1.5-1.5a.5.5 0 0 0 .017-.689l-9.129-8.63c.747-.456 1.772-.839 3.112-.839a.5.5 0 0 0 .472-.334"/>
+                    </svg>
+                </td>
+                <td>@PlayerAttacking.MeleeOffence</td>
+                <td>@EnemyDefending.MeleeOffence</td>
+            </tr>
+            <tr class="oddLine">
+                <td>Melee Defence
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="gray" class="bi bi-hammer" viewBox="0 0 16 16">
+                    <path d="M9.972 2.508a.5.5 0 0 0-.16-.556l-.178-.129a5 5 0 0 0-2.076-.783C6.215.862 4.504 1.229 2.84 3.133H1.786a.5.5 0 0 0-.354.147L.146 4.567a.5.5 0 0 0 0 .706l2.571 2.579a.5.5 0 0 0 .708 0l1.286-1.29a.5.5 0 0 0 .146-.353V5.57l8.387 8.873A.5.5 0 0 0 14 14.5l1.5-1.5a.5.5 0 0 0 .017-.689l-9.129-8.63c.747-.456 1.772-.839 3.112-.839a.5.5 0 0 0 .472-.334"/>
+                    </svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="blue" class="bi bi-shield-plus" viewBox="0 0 16 16">
+                    <path d="M5.338 1.59a61 61 0 0 0-2.837.856.48.48 0 0 0-.328.39c-.554 4.157.726 7.19 2.253 9.188a10.7 10.7 0 0 0 2.287 2.233c.346.244.652.42.893.533q.18.085.293.118a1 1 0 0 0 .101.025 1 1 0 0 0 .1-.025q.114-.034.294-.118c.24-.113.547-.29.893-.533a10.7 10.7 0 0 0 2.287-2.233c1.527-1.997 2.807-5.031 2.253-9.188a.48.48 0 0 0-.328-.39c-.651-.213-1.75-.56-2.837-.855C9.552 1.29 8.531 1.067 8 1.067c-.53 0-1.552.223-2.662.524zM5.072.56C6.157.265 7.31 0 8 0s1.843.265 2.928.56c1.11.3 2.229.655 2.887.87a1.54 1.54 0 0 1 1.044 1.262c.596 4.477-.787 7.795-2.465 9.99a11.8 11.8 0 0 1-2.517 2.453 7 7 0 0 1-1.048.625c-.28.132-.581.24-.829.24s-.548-.108-.829-.24a7 7 0 0 1-1.048-.625 11.8 11.8 0 0 1-2.517-2.453C1.928 10.487.545 7.169 1.141 2.692A1.54 1.54 0 0 1 2.185 1.43 63 63 0 0 1 5.072.56"/>
+                    <path d="M8 4.5a.5.5 0 0 1 .5.5v1.5H10a.5.5 0 0 1 0 1H8.5V9a.5.5 0 0 1-1 0V7.5H6a.5.5 0 0 1 0-1h1.5V5a.5.5 0 0 1 .5-.5"/>
+                    </svg>
+                </td>
+                <td>@PlayerAttacking.MeleeDefence</td>
+                <td>@EnemyDefending.MeleeDefence</td>
+            </tr>
+            <tr class="evenLine">
+                <td>Attack Speed
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="yellow" class="bi bi-lightning" viewBox="0 0 16 16">
+                    <path d="M5.52.359A.5.5 0 0 1 6 0h4a.5.5 0 0 1 .474.658L8.694 6H12.5a.5.5 0 0 1 .395.807l-7 9a.5.5 0 0 1-.873-.454L6.823 9.5H3.5a.5.5 0 0 1-.48-.641zM6.374 1 4.168 8.5H7.5a.5.5 0 0 1 .478.647L6.78 13.04 11.478 7H8a.5.5 0 0 1-.474-.658L9.306 1z"/>
+                    </svg>
+                </td>
+                <td>@PlayerAttacking.AttackSpeed</td>
+                <td>@EnemyDefending.AttackSpeed</td>
+            </tr>
+        </tbody>
+    </table>
+    <div class="input-fields">
+        <div class="row">
+            <div class="col">
+                <div class="form-group">
+                    <label for="wizardInput">Wizard:</label>
+                    <input type="number" class="form-control" id="wizardInput" placeholder="Add to Party">
+                </div>
+            </div>
+            <div class="col">
+                <div class="form-group">
+                    <label for="class2Input">Archmage:</label>
+                    <input type="number" class="form-control" id="class2Input" placeholder="Add to Party">
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <div class="form-group">
+                    <label for="rangerInput">Ranger:</label>
+                    <input type="number" class="form-control" id="rangerInput" placeholder="Add to Party">
+                </div>
+            </div>
+            <div class="col">
+                <div class="form-group">
+                    <label for="class1Input">Cannoneer:</label>
+                    <input type="number" class="form-control" id="class1Input" placeholder="Add to Party">
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <div class="form-group">
+                    <label for="warriorInput">Warrior:</label>
+                    <input type="number" class="form-control" id="warriorInput" placeholder="Add to Party">
+                </div>
+            </div>
+            <div class="col">
+                <div class="form-group">
+                    <label for="class3Input">Cavalry:</label>
+                    <input type="number" class="form-control" id="class3Input" placeholder="Add to Party">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <button @onclick="StartFight">Start Fight</button>
+    <button @onclick="Retreat">Retreat</button>
+</div>
+
+@code {
+
+    bool isFighting = false;
+
+    public PlayerArmy army = new(){
+        PlayerAmunitions = new PlayerAmunitions() {
+            MagicDust = 100,
+            BarbedArrows = 50,
+            StrengthPotions = 20
+        },
+        PlayerBattalions = new PlayerBattalions() {
+            Wizards = 5,
+            Warriors = 1,
+            Rangers = 10
+        }
+    };
+
+    public EnemyArmy enemyArmy = new(){
+        EnemyAmunitions = new EnemyAmunitions() {
+            MagicDust = 100,
+            BarbedArrows = 50,
+            StrengthPotions = 20
+        },
+        EnemyBattalions = new EnemyBattalions() {
+            Wizards = 17,
+            Warriors = 22,
+            Rangers = 35
+        }
+    };
+
+    public Wizard wizard = new();
+    public Warrior warrior = new();
+    public Ranger ranger = new();
+    public AttackingStats PlayerAttacking = new() {
+    };
+    public DefendingStats EnemyDefending = new(){
+    };
+
+    protected async Task onInitializedAsync() {
+
+    }
+    public async Task StartFight(){
+        isFighting = true;
+
+        await StatUpdater();
+        Console.WriteLine($"Fight starting");
+
+        while(isFighting){
+            Console.WriteLine($"Fight still going on, 500 ms have passed");
+            await Task.Delay(500);
+        }
+        
+    }
+
+    public async Task Retreat(){
+        Console.WriteLine($"Retreating from fight");
+        isFighting = false;
+    }
+
+    public async Task StatUpdater() {
+        WizardMultipliers WizardMultiplier = new();
+        WarriorMultipliers WarriorMultiplier = new();
+        RangerMultipliers RangerMultiplier = new();
+
+        int wizards = army.PlayerBattalions.Wizards;
+        int warriors = army.PlayerBattalions.Warriors;
+        int rangers = army.PlayerBattalions.Rangers;
+        int units = wizards + warriors + rangers;
+
+        int enemyWizards = enemyArmy.EnemyBattalions.Wizards;
+        int enemyWarriors = enemyArmy.EnemyBattalions.Warriors;
+        int enemyRangers = enemyArmy.EnemyBattalions.Rangers;
+        int enemyUnits = enemyWizards + enemyWarriors + enemyRangers;
+
+        // Define stats for the player character
+        PlayerAttacking.Health = (wizards*(wizard.Health*WizardMultiplier.HealthMultiplier)) 
+                    + (warriors*(warrior.Health*WarriorMultiplier.HealthMultiplier))
+                    + (rangers*(ranger.Health*RangerMultiplier.HealthMultiplier));
+
+            PlayerAttacking.MagicOffence = (wizards*(wizard.MagicOffence*WizardMultiplier.MagicOffenceMultiplier)) 
+                    + (warriors*(warrior.MagicOffence*WarriorMultiplier.MagicOffenceMultiplier))
+                    + (rangers*(ranger.MagicOffence*RangerMultiplier.MagicOffenceMultiplier));
+
+            PlayerAttacking.MagicDefence = (wizards*(wizard.MagicDefence*WizardMultiplier.MagicDefenceMultiplier)) 
+                    + (warriors*(warrior.MagicDefence*WarriorMultiplier.MagicDefenceMultiplier))
+                    + (rangers*(ranger.MagicDefence*RangerMultiplier.MagicDefenceMultiplier));
+
+            PlayerAttacking.RangeOffence = (wizards*(wizard.RangeOffence*WizardMultiplier.RangeOffenceMultiplier)) 
+                    + (warriors*(warrior.RangeOffence*WarriorMultiplier.RangeOffenceMultiplier))
+                    + (rangers*(ranger.RangeOffence*RangerMultiplier.RangeOffenceMultiplier));
+
+            PlayerAttacking.RangeDefence = (wizards*(wizard.RangeDefence*WizardMultiplier.RangeDefenceMultiplier)) 
+                    + (warriors*(warrior.RangeDefence*WarriorMultiplier.RangeDefenceMultiplier))
+                    + (rangers*(ranger.RangeDefence*RangerMultiplier.RangeDefenceMultiplier));
+
+            PlayerAttacking.MeleeOffence = (wizards*(wizard.MeleeOffence*WizardMultiplier.MeleeOffenceMultiplier)) 
+                    + (warriors*(warrior.MeleeOffence*WarriorMultiplier.MeleeOffenceMultiplier))
+                    + (rangers*(ranger.MeleeOffence*RangerMultiplier.MeleeOffenceMultiplier));
+
+            PlayerAttacking.MeleeDefence = (wizards*(wizard.MeleeDefence*WizardMultiplier.MeleeDefenceMultiplier)) 
+                    + (warriors*(warrior.MeleeDefence*WarriorMultiplier.MeleeDefenceMultiplier))
+                    + (rangers*(ranger.MeleeDefence*RangerMultiplier.MeleeDefenceMultiplier));
+
+            PlayerAttacking.AttackSpeed = ((wizards*(wizard.AttackSpeed*WizardMultiplier.AttackSpeedMultiplier)) 
+                    + (warriors*(warrior.AttackSpeed*WarriorMultiplier.AttackSpeedMultiplier))
+                    + (rangers*(ranger.AttackSpeed*RangerMultiplier.AttackSpeedMultiplier)))/units;
+
+            
+            // Define stats for the enemy character
+            EnemyDefending.Health = (enemyWizards*(wizard.Health*WizardMultiplier.HealthMultiplier)) 
+                    + (enemyWarriors*(warrior.Health*WarriorMultiplier.HealthMultiplier))
+                    + (enemyRangers*(ranger.Health*RangerMultiplier.HealthMultiplier));
+
+            EnemyDefending.MagicOffence = (enemyWizards*(wizard.MagicOffence*WizardMultiplier.MagicOffenceMultiplier)) 
+                    + (enemyWarriors*(warrior.MagicOffence*WarriorMultiplier.MagicOffenceMultiplier))
+                    + (enemyRangers*(ranger.MagicOffence*RangerMultiplier.MagicOffenceMultiplier));
+
+            EnemyDefending.MagicDefence = (enemyWizards*(wizard.MagicDefence*WizardMultiplier.MagicDefenceMultiplier)) 
+                    + (enemyWarriors*(warrior.MagicDefence*WarriorMultiplier.MagicDefenceMultiplier))
+                    + (enemyRangers*(ranger.MagicDefence*RangerMultiplier.MagicDefenceMultiplier));
+
+            EnemyDefending.RangeOffence = (enemyWizards*(wizard.RangeOffence*WizardMultiplier.RangeOffenceMultiplier)) 
+                    + (enemyWarriors*(warrior.RangeOffence*WarriorMultiplier.RangeOffenceMultiplier))
+                    + (enemyRangers*(ranger.RangeOffence*RangerMultiplier.RangeOffenceMultiplier));
+
+            EnemyDefending.RangeDefence = (enemyWizards*(wizard.RangeDefence*WizardMultiplier.RangeDefenceMultiplier)) 
+                    + (enemyWarriors*(warrior.RangeDefence*WarriorMultiplier.RangeDefenceMultiplier))
+                    + (enemyRangers*(ranger.RangeDefence*RangerMultiplier.RangeDefenceMultiplier));
+
+            EnemyDefending.MeleeOffence = (enemyWizards*(wizard.MeleeOffence*WizardMultiplier.MeleeOffenceMultiplier)) 
+                    + (enemyWarriors*(warrior.MeleeOffence*WarriorMultiplier.MeleeOffenceMultiplier))
+                    + (enemyRangers*(ranger.MeleeOffence*RangerMultiplier.MeleeOffenceMultiplier));
+
+            EnemyDefending.MeleeDefence = (enemyWizards*(wizard.MeleeDefence*WizardMultiplier.MeleeDefenceMultiplier)) 
+                    + (enemyWarriors*(warrior.MeleeDefence*WarriorMultiplier.MeleeDefenceMultiplier))
+                    + (enemyRangers*(ranger.MeleeDefence*RangerMultiplier.MeleeDefenceMultiplier));
+
+            EnemyDefending.AttackSpeed = ((enemyWizards*(wizard.AttackSpeed*WizardMultiplier.AttackSpeedMultiplier)) 
+                    + (enemyWarriors*(warrior.AttackSpeed*WarriorMultiplier.AttackSpeedMultiplier))
+                    + (enemyRangers*(ranger.AttackSpeed*RangerMultiplier.AttackSpeedMultiplier)))/enemyUnits;
+    }
+
+    public async Task UnitUpdater() {
+
+    }
+    
+
+
+}
