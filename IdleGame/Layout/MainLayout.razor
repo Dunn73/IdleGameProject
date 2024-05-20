@@ -1,4 +1,10 @@
 ﻿@inherits LayoutComponentBase
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+@inject GlobalSave GlobalSave
+
+@using Models.GlobalVariables;
+@using Models.SaveState;
+
 <div class="page">
     <div class="sidebar">
         <NavMenu />
@@ -6,7 +12,14 @@
 
     <main>
         <div class="top-row px-4">
-            
+            <div style = "border-right: 1px solid black;">@($"Wizards: {numWizards} ")
+                &nbsp; <br>
+                @($"Warriors: {numWarriors} ")&nbsp;<br>
+                @($"Rangers: {numRangers} ")&nbsp;</div>
+            <div>
+                &nbsp;@($"Archmages: {numArchMages} ") <br>
+                &nbsp;@($"Cavalry: {numCavalry} ")<br>
+                &nbsp;@($"Cannoneers: {numCannoneers} ")</div>
         </div>
 
         <article class="content px-4">
@@ -14,3 +27,34 @@
         </article>
     </main>
 </div>
+
+@code {
+    long numWizards = 0;
+    long numWarriors = 0;
+    long numRangers = 0;
+    long numArchMages = 0;
+    long numCavalry = 0;
+    long numCannoneers = 0;
+
+    protected override async Task OnInitializedAsync() {
+
+        // Delay this task by 1 millisecond to allow the globalsave to be populated
+        await Task.Delay(1);
+        GlobalSave.OnPlayerUnitsChanged += UpdatePlayerUnits;
+        LoadPlayerUnits();
+    }
+
+    private void LoadPlayerUnits(){
+        numWizards = GlobalSave.NewSave.PlayerUnits.Wizards;
+        numWarriors = GlobalSave.NewSave.PlayerUnits.Warriors;
+        numRangers = GlobalSave.NewSave.PlayerUnits.Rangers; 
+        numArchMages = GlobalSave.NewSave.PlayerUnits.Archmages;
+        numCavalry = GlobalSave.NewSave.PlayerUnits.Cavalry;
+        numCannoneers = GlobalSave.NewSave.PlayerUnits.Cannoneers;
+    }
+
+    private void UpdatePlayerUnits() {
+        LoadPlayerUnits();
+        InvokeAsync(StateHasChanged);
+    }
+}

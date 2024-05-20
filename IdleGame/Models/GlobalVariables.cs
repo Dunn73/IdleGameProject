@@ -11,5 +11,10 @@ public class GlobalBool {
 
 public class GlobalSave {
     public EmptySave? NewSave {get; set;}
+    public event Action? OnPlayerUnitsChanged;
+    public void NotifyPlayerUnitsChanged() => OnPlayerUnitsChanged.Invoke();
 }
 
+public class GlobalPage {
+    public int PageNumber {get; set;}
+}

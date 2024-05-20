@@ -1,7 +1,9 @@
 ﻿@page "/stats"
-@using Models.GlobalVariables;
 @inject HttpClient Http
-@inject GlobalBool GlobalVariable;
+@inject GlobalBool GlobalVariable
+@inject GlobalPage GlobalPage
+@inject NavigationManager NavManager
+@using Models.GlobalVariables;
 
 <PageTitle>Home</PageTitle>
 
@@ -10,9 +12,14 @@
     }
     .targeted-animation {
         background-color: aliceblue;
-    pre {
-        overflow: hidden;
+        pre {
+            overflow: hidden;
+        }
     }
+    .testCss{
+        font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+        font-family: fantasy;
+        font-family: ;
     }
 </style>
 <div class="targeted-animation" style="width: 400px; height: 400px;">
@@ -82,9 +89,16 @@
     private char[][][] frames;
     private int currentFrameIndex = 0;
 
-    protected override async Task OnInitializedAsync()
-    {
-       await PopulateFramesAsync();
+    protected override async Task OnInitializedAsync() {
+        GlobalPage.PageNumber = 2;
+        if (GlobalVariable.FirstRender){
+            NavManager.NavigateTo("/");
+            GlobalVariable.FirstRender = false;
+        }
+        else {
+            NavManager.NavigateTo("/stats");
+        }
+        await PopulateFramesAsync();
     }
 
     private async Task PopulateFramesAsync()
@@ -100,7 +114,6 @@
             if (currentFrameIndex >= frames.Length) {
                 currentFrameIndex = 0;
             }
-            //await InvokeAsync(StateHasChanged);
             StateHasChanged();
         }
     }

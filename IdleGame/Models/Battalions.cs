@@ -17,7 +17,19 @@ public class EnemyBattalions {
      
 }
 
-public class Wizard {
+public class Unit {
+    public int Health {get; set;} = 0;
+    public int MagicOffence {get; set;} = 0;
+    public int MagicDefence {get; set;} = 0;
+    public int RangeOffence {get; set;} = 0;
+    public int RangeDefence {get; set;} = 0;
+    public int MeleeOffence {get; set;} = 0;
+    public int MeleeDefence {get; set;} = 0;
+    public int AttackSpeed {get; set;} = 1000;
+
+}
+
+public class Wizard: Unit {
     public int Health {get; set;} = 8;
     public int MagicOffence {get; set;} = 6;
     public int MagicDefence {get; set;} = 3;
@@ -29,7 +41,7 @@ public class Wizard {
 
 }
 
-public class Warrior {
+public class Warrior: Unit {
    public int Health {get; set;} = 12;
     public int MagicOffence {get; set;} = 0;
     public int MagicDefence {get; set;} = 2;
@@ -39,7 +51,7 @@ public class Warrior {
     public int MeleeDefence {get; set;} = 5;
     public int AttackSpeed {get; set;} = 1000;
 }
-public class Ranger {
+public class Ranger: Unit {
     public int Health {get; set;} = 10;
     public int MagicOffence {get; set;} = 0;
     public int MagicDefence {get; set;} = 2;
@@ -50,7 +62,7 @@ public class Ranger {
     public int AttackSpeed {get; set;} = 1000;
 }
 
-public class Archmage {
+public class Archmage: Unit {
     public int Health {get; set;} = 10;
     public int MagicOffence {get; set;} = 0;
     public int MagicDefence {get; set;} = 2;
@@ -61,7 +73,7 @@ public class Archmage {
     public int AttackSpeed {get; set;} = 1000;
 }
 
-public class Cannoneer {
+public class Cannoneer: Unit {
     public int Health {get; set;} = 10;
     public int MagicOffence {get; set;} = 0;
     public int MagicDefence {get; set;} = 2;
@@ -72,7 +84,7 @@ public class Cannoneer {
     public int AttackSpeed {get; set;} = 1000;
 }
 
-public class Cavalry {
+public class Cavalry: Unit {
     public int Health {get; set;} = 10;
     public int MagicOffence {get; set;} = 0;
     public int MagicDefence {get; set;} = 2;

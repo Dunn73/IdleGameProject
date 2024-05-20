@@ -137,3 +137,17 @@ public record EmptySave {
         
     };
 }
+
+public record TutorialSave: EmptySave {
+    public TutorialSave() : base() {
+        PlayerUnits = new PlayerBattalions {
+            Wizards = 250,
+            Warriors = 250,
+            Rangers = 250,
+            Archmages = 25,
+            Cannoneers = 25,
+            Cavalry = 25
+        };
+    }
+    
+}

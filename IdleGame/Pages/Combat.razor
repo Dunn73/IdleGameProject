@@ -1,11 +1,15 @@
-@page "/testing"
+@page "/combat"
 @inject Blazored.LocalStorage.ILocalStorageService localStorage
+@inject GlobalPage GlobalPage
+@inject GlobalBool GlobalVariable
+@inject NavigationManager NavManager
 @using Models.Battalions;
 @using Models.Amunitions;
 @using Models.Army;
 @using Models.Stats;
 @using Models.Multipliers;
 @using Models.SaveState;
+@using Models.GlobalVariables;
 <PageTitle>Combat</PageTitle>
 
 <style>
@@ -214,8 +218,15 @@
     public DefendingStats EnemyDefending = new(){
     };
 
-    protected async Task onInitializedAsync() {
-
+    protected override async Task OnInitializedAsync() {
+        GlobalPage.PageNumber = 4;
+        if (GlobalVariable.FirstRender){
+            NavManager.NavigateTo("/");
+            GlobalVariable.FirstRender = false;
+        }
+        else {
+            NavManager.NavigateTo("/combat");
+        }
     }
     public async Task StartFight(){
         isFighting = true;
@@ -227,6 +238,9 @@
             Console.WriteLine($"Fight still going on, 500 ms have passed");
             await Task.Delay(500);
         }
+        
+    }
+    public async Task Testing(){
         
     }
 

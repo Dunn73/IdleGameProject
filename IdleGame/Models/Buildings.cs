@@ -5,5 +5,6 @@ public class PlayerBuildings {
     public int Shack {get; set;}
     public int TreeHouse {get; set;}
     public int Farm {get; set;}
+    public int Castle {get; set;}
     
 }
