@@ -191,9 +191,12 @@
             StrengthPotions = 20
         },
         PlayerBattalions = new PlayerBattalions() {
-            Wizards = 5,
-            Warriors = 1,
-            Rangers = 10
+            Wizards = new UnitCount<Wizard>(),
+            Warriors = new UnitCount<Warrior>(),
+            Rangers = new UnitCount<Ranger>(),
+            Archmages = new UnitCount<Archmage>(),
+            Cannoneers = new UnitCount<Cannoneer>(),
+            Cavalry = new UnitCount<Cavalry>()
         }
     };
 
@@ -250,14 +253,14 @@
     }
 
     public async Task StatUpdater() {
-        WizardMultipliers WizardMultiplier = new();
+        @* WizardMultipliers WizardMultiplier = new();
         WarriorMultipliers WarriorMultiplier = new();
         RangerMultipliers RangerMultiplier = new();
 
-        int wizards = army.PlayerBattalions.Wizards;
-        int warriors = army.PlayerBattalions.Warriors;
-        int rangers = army.PlayerBattalions.Rangers;
-        int units = wizards + warriors + rangers;
+        (Unit,int?) wizards = army.PlayerBattalions.Wizards;
+        int? warriors = army.PlayerBattalions.Warriors;
+        int? rangers = army.PlayerBattalions.Rangers;
+        int? units = wizards + warriors + rangers;
 
         int enemyWizards = enemyArmy.EnemyBattalions.Wizards;
         int enemyWarriors = enemyArmy.EnemyBattalions.Warriors;
@@ -329,7 +332,7 @@
 
             EnemyDefending.AttackSpeed = ((enemyWizards*(wizard.AttackSpeed*WizardMultiplier.AttackSpeedMultiplier)) 
                     + (enemyWarriors*(warrior.AttackSpeed*WarriorMultiplier.AttackSpeedMultiplier))
-                    + (enemyRangers*(ranger.AttackSpeed*RangerMultiplier.AttackSpeedMultiplier)))/enemyUnits;
+                    + (enemyRangers*(ranger.AttackSpeed*RangerMultiplier.AttackSpeedMultiplier)))/enemyUnits; *@
     }
 
     public async Task UnitUpdater() {

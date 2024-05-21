@@ -9,21 +9,21 @@ namespace Models.SaveState;
 
 public record EmptySave {
     public PlayerBattalions PlayerUnits = new(){
-        Wizards = 0,
-        Warriors = 0,
-        Rangers = 0,
-        Archmages = 0,
-        Cannoneers = 0,
-        Cavalry = 0
+        Wizards = new UnitCount<Wizard>(),
+        Warriors = new UnitCount<Warrior>(),
+        Rangers = new UnitCount<Ranger>(),
+        Archmages = new UnitCount<Archmage>(),
+        Cannoneers = new UnitCount<Cannoneer>(),
+        Cavalry = new UnitCount<Cavalry>()
     };
     public PlayerArmy PlayerArmy = new() {
         PlayerBattalions = new() {
-            Wizards = 0,
-            Warriors = 0,
-            Rangers = 0,
-            Archmages = 0,
-            Cannoneers = 0,
-            Cavalry = 0
+            Wizards = new UnitCount<Wizard>(),
+            Warriors = new UnitCount<Warrior>(),
+            Rangers = new UnitCount<Ranger>(),
+            Archmages = new UnitCount<Archmage>(),
+            Cannoneers = new UnitCount<Cannoneer>(),
+            Cavalry = new UnitCount<Cavalry>()
         },
         WizardMultipliers = new() {
             HealthMultiplier = 1,
@@ -65,12 +65,12 @@ public record EmptySave {
 
     public KingdomArmy KingdomArmy= new() {
         PlayerBattalions = new() {
-            Wizards = 0,
-            Warriors = 0,
-            Rangers = 0,
-            Archmages = 0,
-            Cannoneers = 0,
-            Cavalry = 0
+            Wizards = new UnitCount<Wizard>(),
+            Warriors = new UnitCount<Warrior>(),
+            Rangers = new UnitCount<Ranger>(),
+            Archmages = new UnitCount<Archmage>(),
+            Cannoneers = new UnitCount<Cannoneer>(),
+            Cavalry = new UnitCount<Cavalry>()
         },
         WizardMultipliers = new() {
             HealthMultiplier = 1,
@@ -141,12 +141,12 @@ public record EmptySave {
 public record TutorialSave: EmptySave {
     public TutorialSave() : base() {
         PlayerUnits = new PlayerBattalions {
-            Wizards = 250,
-            Warriors = 250,
-            Rangers = 250,
-            Archmages = 25,
-            Cannoneers = 25,
-            Cavalry = 25
+            Wizards = new UnitCount<Wizard>(),
+            Warriors = new UnitCount<Warrior>(),
+            Rangers = new UnitCount<Ranger>(),
+            Archmages = new UnitCount<Archmage>(),
+            Cannoneers = new UnitCount<Cannoneer>(),
+            Cavalry = new UnitCount<Cavalry>()
         };
     }
     

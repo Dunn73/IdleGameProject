@@ -2,6 +2,7 @@
 @inject Blazored.LocalStorage.ILocalStorageService localStorage
 @inject GlobalSave GlobalSave
 
+@using Models.Battalions
 @using Models.GlobalVariables;
 @using Models.SaveState;
 
@@ -17,7 +18,7 @@
                 @($"Warriors: {numWarriors} ")&nbsp;<br>
                 @($"Rangers: {numRangers} ")&nbsp;</div>
             <div>
-                &nbsp;@($"Archmages: {numArchMages} ") <br>
+                &nbsp;@($"Archmages: {numArchmages} ") <br>
                 &nbsp;@($"Cavalry: {numCavalry} ")<br>
                 &nbsp;@($"Cannoneers: {numCannoneers} ")</div>
         </div>
@@ -29,12 +30,13 @@
 </div>
 
 @code {
-    long numWizards = 0;
-    long numWarriors = 0;
-    long numRangers = 0;
-    long numArchMages = 0;
-    long numCavalry = 0;
-    long numCannoneers = 0;
+    int? numWizards = 0;
+    int? numWarriors = 0;
+    int? numRangers = 0;
+    int? numArchmages = 0;
+    int? numCavalry = 0;
+    int? numCannoneers = 0;
+
 
     protected override async Task OnInitializedAsync() {
 
@@ -45,16 +47,16 @@
     }
 
     private void LoadPlayerUnits(){
-        numWizards = GlobalSave.NewSave.PlayerUnits.Wizards;
-        numWarriors = GlobalSave.NewSave.PlayerUnits.Warriors;
-        numRangers = GlobalSave.NewSave.PlayerUnits.Rangers; 
-        numArchMages = GlobalSave.NewSave.PlayerUnits.Archmages;
-        numCavalry = GlobalSave.NewSave.PlayerUnits.Cavalry;
-        numCannoneers = GlobalSave.NewSave.PlayerUnits.Cannoneers;
+        numWizards = GlobalSave.NewSave.PlayerUnits.Wizards.Count;
+        numWarriors = GlobalSave.NewSave.PlayerUnits.Warriors.Count;
+        numRangers = GlobalSave.NewSave.PlayerUnits.Rangers.Count; 
+        numArchmages = GlobalSave.NewSave.PlayerUnits.Archmages.Count;
+        numCavalry = GlobalSave.NewSave.PlayerUnits.Cavalry.Count;
+        numCannoneers = GlobalSave.NewSave.PlayerUnits.Cannoneers.Count;
     }
 
     private void UpdatePlayerUnits() {
         LoadPlayerUnits();
         InvokeAsync(StateHasChanged);
     }
-}
+}  

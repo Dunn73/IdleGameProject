@@ -6,13 +6,15 @@ namespace Models.GlobalVariables;
 public class GlobalBool {
     public bool FirstRender {get; set;} = true;
     public bool Animation {get; set;} = false;
-    public bool TimerStarted {get; set;} = false;
+    public static bool TimerStarted {get; set;} = false;
 }
 
 public class GlobalSave {
-    public EmptySave? NewSave {get; set;}
-    public event Action? OnPlayerUnitsChanged;
-    public void NotifyPlayerUnitsChanged() => OnPlayerUnitsChanged.Invoke();
+    public static EmptySave? NewSave {get; set;}
+    public static event Action? OnPlayerUnitsChanged;
+    public static void NotifyPlayerUnitsChanged() => OnPlayerUnitsChanged.Invoke();
+    public static event Action? OnTimeChanged;
+    public static void NotifyTimeChanged() => OnTimeChanged.Invoke();
 }
 
 public class GlobalPage {

@@ -4,10 +4,13 @@
 @inject GlobalSave GlobalSave
 @inject GlobalPage GlobalPage
 @inject NavigationManager NavManager
+@inject IJSRuntime JSRuntime
 
 @using System.Diagnostics;
+@using Models.Battalions
 @using Models.GlobalVariables;
 @using Models.SaveState;
+@using System.Reflection
 
 
 <PageTitle>Kingdom</PageTitle>
@@ -33,12 +36,12 @@
 <div style="width: 400px; height: 400px; background-color: aliceblue;"></div>
 </div>
 
- <button @onclick="BuildWizard">Wizard +5</button> 
-
-
+<button @onclick="BuildWizard">Wizard +5</button> 
+<button @onclick="KingdomCombat">Combat Simulator</button>
 <button @onclick="ResetFile">RESET FILE</button>
 
 @code {
+    private static int tickCount = 0;
     public bool paused = false;
     public CancellationTokenSource cancellationTokenSource;
     public  CancellationToken cancellationToken;
@@ -58,8 +61,9 @@
     int lightAnimationInnerValue = 0;
     
     protected override async Task OnInitializedAsync(){
+        GlobalSave.OnTimeChanged += SaveLocalStorage;
 
-        if (GlobalVariable.TimerStarted == false){
+        if (GlobalBool.TimerStarted == false){
             GlobalSave.NewSave = new TutorialSave();
         }
         GlobalPage.PageNumber = 1;
@@ -74,26 +78,44 @@
             GlobalSave.NewSave = await localStorage.GetItemAsync<EmptySave>("saveState");
         }
 
-        if (GlobalVariable.TimerStarted == false){
+        if (GlobalBool.TimerStarted == false){
             GlobalVariable.FirstRender = false;
             cancellationTokenSource = new CancellationTokenSource();
             cancellationToken = cancellationTokenSource.Token;
-            GlobalVariable.TimerStarted = true;
+            GlobalBool.TimerStarted = true;
+            await JSRuntime.InvokeVoidAsync("timerWorker.start");
             await GameTimer();
+            
             
         }
     }
+    
+    [JSInvokable]
+    public static Task OnTimerTick() {
 
+        GlobalSave.NewSave.PlayerUnits.Wizards.Count ++;
+        GlobalSave.NotifyTimeChanged();
+        return Task.CompletedTask;
+    }
+    // Currently responsible for using javascript web worker to save current save to local storage
+    private void SaveLocalStorage() {
+        localStorage.SetItemAsync<EmptySave>("saveState", GlobalSave.NewSave);
+        InvokeAsync(StateHasChanged);
+    }
+    public void Dispose() {
+        JSRuntime.InvokeVoidAsync("timerWorker.stop");
+    }
     public async Task ResetFile() {
         await localStorage.RemoveItemAsync("saveState");
         NavManager.NavigateTo("/", forceLoad:true); // reloads the page so that creation of a new character can trigger
     }
     public async Task GameTimer(){
-        while (GlobalVariable.TimerStarted){
+        while (GlobalBool.TimerStarted){
             try {
                 await localStorage.SetItemAsync<EmptySave>("saveState", GlobalSave.NewSave);
-                Console.WriteLine("Game Saved");
-                await Task.Delay(500);
+                await Task.Delay(1000);
+                GlobalSave.NewSave.PlayerUnits.Rangers.Count += 1;
+                GlobalSave.NotifyPlayerUnitsChanged();
                 StateHasChanged();
             }
             catch (TaskCanceledException) {
@@ -102,12 +124,74 @@
     }
 
     public async Task KingdomCombat() {
+        int totalHealth = 0;
+        int totalMageOffence = 0;
+        int totalMageDefence = 0;
+        int totalRangeOffence = 0;
+        int totalRangeDefence = 0;
+        int totalMeleeOffence = 0;
+        int totalMeleeDefence = 0;
         
+        foreach (PropertyInfo unit in typeof(PlayerBattalions).GetProperties()){
+            var unitCount = unit.GetValue(GlobalSave.NewSave.PlayerUnits);
+            if (unitCount != null){
+                Console.WriteLine($"{unit.Name}:");
+                var unitProperty = unitCount.GetType().GetProperty("Unit");
+                var countProperty = unitCount.GetType().GetProperty("Count");
+                if (unitProperty != null){
+                    var unitInstance = unitProperty.GetValue(unitCount);
+                    var numUnits = countProperty.GetValue(unitCount);
+                    foreach (var property in unitInstance.GetType().GetProperties()){
+                        Console.WriteLine($"{property.Name}: {property.GetValue(unitInstance)}");
+
+                    // Add each unit's property values to the corresponding totals
+                    switch (property.Name) {
+                        case "Health":
+                            totalHealth += ((int)property.GetValue(unitInstance) * Convert.ToInt32(numUnits));
+                            break;
+                        case "MagicOffence":
+                            totalMageOffence += ((int)property.GetValue(unitInstance) * Convert.ToInt32(numUnits));
+                            break;
+                        case "MagicDefence":
+                            totalMageDefence += ((int)property.GetValue(unitInstance) * Convert.ToInt32(numUnits));
+                            break;
+                        case "RangeOffence":
+                            totalRangeOffence += ((int)property.GetValue(unitInstance) * Convert.ToInt32(numUnits));
+                            break;
+                        case "RangeDefence":
+                            totalRangeDefence += ((int)property.GetValue(unitInstance) * Convert.ToInt32(numUnits));
+                            break;
+                        case "MeleeOffence":
+                            totalMeleeOffence += ((int)property.GetValue(unitInstance) * Convert.ToInt32(numUnits));
+                            break;
+                        case "MeleeDefence":
+                            totalMeleeDefence += ((int)property.GetValue(unitInstance) * Convert.ToInt32(numUnits));
+                            break;
+                        default:
+                    break;
+                    }
+
+                    }
+                }
+            }
+        }
+        Console.WriteLine($"{totalHealth}");
     }
 
     public void BuildWizard() {
-        GlobalSave.NewSave.PlayerUnits.Wizards +=5;
+        GlobalSave.NewSave.PlayerUnits.Wizards.Count += 5;
         GlobalSave.NotifyPlayerUnitsChanged();
+        foreach (PropertyInfo prop in typeof(PlayerBattalions).GetProperties()){
+            var unitCount = prop.GetValue(GlobalSave.NewSave.PlayerUnits);
+            if (unitCount != null){
+                PropertyInfo countProp = unitCount.GetType().GetProperty("Count");
+                if (countProp != null){
+                    int? count = (int?)countProp.GetValue(unitCount);
+                    Console.WriteLine($"{prop.Name}: {count}");
+                }
+            }
+            
+        }
     
     }
 
