@@ -41,7 +41,6 @@
 <button @onclick="ResetFile">RESET FILE</button>
 
 @code {
-    private static int tickCount = 0;
     public bool paused = false;
     public CancellationTokenSource cancellationTokenSource;
     public  CancellationToken cancellationToken;
@@ -61,13 +60,11 @@
     int lightAnimationInnerValue = 0;
     
     protected override async Task OnInitializedAsync(){
-        GlobalSave.OnTimeChanged += SaveLocalStorage;
 
         if (GlobalBool.TimerStarted == false){
             GlobalSave.NewSave = new TutorialSave();
         }
         GlobalPage.PageNumber = 1;
-        CastleAnimation();
 
          if (await localStorage.GetItemAsync<EmptySave>("saveState") == null){
             await localStorage.SetItemAsync<EmptySave>("saveState", GlobalSave.NewSave);
@@ -80,26 +77,22 @@
 
         if (GlobalBool.TimerStarted == false){
             GlobalVariable.FirstRender = false;
-            cancellationTokenSource = new CancellationTokenSource();
-            cancellationToken = cancellationTokenSource.Token;
             GlobalBool.TimerStarted = true;
             await JSRuntime.InvokeVoidAsync("timerWorker.start");
-            await GameTimer();
-            
-            
+            GlobalSave.OnTimeChanged += SaveLocalStorage;
         }
     }
     
     [JSInvokable]
-    public static Task OnTimerTick() {
-
-        GlobalSave.NewSave.PlayerUnits.Wizards.Count ++;
+    public static async Task OnTimerTick() {
         GlobalSave.NotifyTimeChanged();
-        return Task.CompletedTask;
+        await Task.CompletedTask;
     }
     // Currently responsible for using javascript web worker to save current save to local storage
     private void SaveLocalStorage() {
+        GlobalSave.NewSave.PlayerUnits.Wizards.Count ++;
         localStorage.SetItemAsync<EmptySave>("saveState", GlobalSave.NewSave);
+        GlobalSave.NotifyPlayerUnitsChanged();
         InvokeAsync(StateHasChanged);
     }
     public void Dispose() {
@@ -109,19 +102,17 @@
         await localStorage.RemoveItemAsync("saveState");
         NavManager.NavigateTo("/", forceLoad:true); // reloads the page so that creation of a new character can trigger
     }
-    public async Task GameTimer(){
+    @* public async Task GameTimer(){
         while (GlobalBool.TimerStarted){
             try {
                 await localStorage.SetItemAsync<EmptySave>("saveState", GlobalSave.NewSave);
                 await Task.Delay(1000);
-                GlobalSave.NewSave.PlayerUnits.Rangers.Count += 1;
-                GlobalSave.NotifyPlayerUnitsChanged();
                 StateHasChanged();
             }
             catch (TaskCanceledException) {
             }
         }
-    }
+    } *@
 
     public async Task KingdomCombat() {
         int totalHealth = 0;
@@ -226,9 +217,6 @@
             StateHasChanged();
             await Task.Delay(200);
         }
-    }
-    private void StopTimer() {
-        cancellationTokenSource?.Cancel();
     }
      private async Task HandleSubmit(string titleAndName)
     {

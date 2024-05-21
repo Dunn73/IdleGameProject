@@ -12,7 +12,7 @@ let timerId;
 function startTimer() {
     timerId = setInterval(() => {
         postMessage('tick');
-    }, 1000); // Send a 'tick' message every second
+    }, 200 ); // Global game timer interval
 }
 
 function stopTimer() {

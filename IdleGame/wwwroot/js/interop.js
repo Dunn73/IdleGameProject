@@ -21,9 +21,4 @@ window.timerWorker = {
             this.worker = null;
         }
     },
-
-    invokeOnTimerTick: function (globalSave) {
-        DotNet.invokeMethodAsync('IdleGame', 'OnTimerTick', globalSave)
-            .catch(error => console.error('Error invoking OnTimerTick:', error));
-    }
 };
