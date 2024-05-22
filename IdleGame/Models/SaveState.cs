@@ -16,6 +16,10 @@ public record EmptySave {
         Cannoneers = new UnitCount<Cannoneer>(),
         Cavalry = new UnitCount<Cavalry>()
     };
+
+    public EnemyBattalions EnemyUnits = new(){
+        
+    };
     public PlayerArmy PlayerArmy = new() {
         PlayerBattalions = new() {
             Wizards = new UnitCount<Wizard>(),
@@ -141,12 +145,18 @@ public record EmptySave {
 public record TutorialSave: EmptySave {
     public TutorialSave() : base() {
         PlayerUnits = new PlayerBattalions {
-            Wizards = new UnitCount<Wizard>(),
-            Warriors = new UnitCount<Warrior>(),
-            Rangers = new UnitCount<Ranger>(),
-            Archmages = new UnitCount<Archmage>(),
-            Cannoneers = new UnitCount<Cannoneer>(),
-            Cavalry = new UnitCount<Cavalry>()
+            Wizards = new UnitCount<Wizard>() {Count = 250},
+            Warriors = new UnitCount<Warrior>() {Count = 250},
+            Rangers = new UnitCount<Ranger>() {Count = 250},
+            Archmages = new UnitCount<Archmage>() {Count = 25},
+            Cannoneers = new UnitCount<Cannoneer>() {Count = 25},
+            Cavalry = new UnitCount<Cavalry>() {Count = 25},
+            
+        };
+
+        EnemyUnits = new EnemyBattalions {
+            Archmages = new UnitCount<Archmage>() {Count = 25},
+            TutorialBoss = new UnitCount<TutorialBoss>() {Count = 1}
         };
     }
     

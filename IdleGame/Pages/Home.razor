@@ -39,6 +39,8 @@
 <button @onclick="BuildWizard">Wizard +5</button> 
 <button @onclick="KingdomCombat">Combat Simulator</button>
 <button @onclick="ResetFile">RESET FILE</button>
+<button @onclick="EnemyUnit">Enemy Unit Save Tester</button>
+<button @onclick="Pause"> Pause Timer</button>
 
 @code {
     public bool paused = false;
@@ -58,6 +60,10 @@
                                               "#9e2e2e", "#b83535", "#b83535", "#d43d3d", "#fa4848"];
     int lightAnimationValue = 0;
     int lightAnimationInnerValue = 0;
+
+    public async Task EnemyUnit() {
+        Console.WriteLine(GlobalSave.NewSave.EnemyUnits.Archmages.Count);
+    }
     
     protected override async Task OnInitializedAsync(){
 
@@ -97,6 +103,19 @@
     }
     public void Dispose() {
         JSRuntime.InvokeVoidAsync("timerWorker.stop");
+    }
+    public void JsTimerStart() {
+        JSRuntime.InvokeVoidAsync("timerWorker.start");
+    }
+    public void Pause() {
+        if (paused == true) {
+            paused = false;
+            JsTimerStart();
+        }
+        else {
+            paused = true;
+            Dispose();
+        }
     }
     public async Task ResetFile() {
         await localStorage.RemoveItemAsync("saveState");
