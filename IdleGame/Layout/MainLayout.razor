@@ -5,9 +5,10 @@
 @using Models.Battalions
 @using Models.GlobalVariables;
 @using Models.SaveState;
+@using RazorComponents;
 
 <div class="page">
-    <div class="sidebar">
+    <div class="sidebar" style="width: 11.0rem;">
         <NavMenu />
     </div>
 
@@ -38,12 +39,14 @@
     int? numCannoneers = 0;
 
 
+
     protected override async Task OnInitializedAsync() {
 
         // Delay this task by 1 millisecond to allow the globalsave to be populated
         await Task.Delay(1);
         GlobalSave.OnPlayerUnitsChanged += UpdatePlayerUnits;
         LoadPlayerUnits();
+
     }
 
     private void LoadPlayerUnits(){

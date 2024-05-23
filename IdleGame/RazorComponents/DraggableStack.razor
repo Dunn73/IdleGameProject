@@ -1,0 +1,55 @@
+
+<ul class="list-group" style="cursor: pointer;">
+    @foreach (var item in Items)
+    {
+        <li draggable="true"
+            class="list-group-item"
+            @key=@item.Id
+            @ondragstart="@( () => OnDragStart(item))"
+            @ondragover:preventDefault
+            @ondragover="@( (e) => OnDragOver(e))"
+            @ondrop="@( () => OnDrop(item))">
+            @item.Name
+        </li>
+    }
+</ul>
+
+@code {
+    public class Item
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+    }
+
+    private List<Item> Items = new()
+    {
+        new Item { Id = 1, Name = "Warrior" },
+        new Item { Id = 2, Name = "Wizard" },
+        new Item { Id = 3, Name = "Ranger" },
+        new Item { Id = 4, Name = "Cannoneer" }
+    };
+
+    private Item? draggedItem;
+
+    private void OnDragStart(Item item)
+    {
+        draggedItem = item;
+    }
+
+    private void OnDragOver(DragEventArgs e)
+    {
+        
+    }
+
+    private void OnDrop(Item targetItem)
+    {
+        if (draggedItem != null)
+        {
+            var draggedIndex = Items.IndexOf(draggedItem);
+            var targetIndex = Items.IndexOf(targetItem);
+            Items.RemoveAt(draggedIndex);
+            Items.Insert(targetIndex, draggedItem);
+            draggedItem = null;
+        }
+    }
+}

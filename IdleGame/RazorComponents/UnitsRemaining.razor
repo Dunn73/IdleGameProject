@@ -1,0 +1,51 @@
+@using System.Reflection
+
+<style>
+    .testDiv {
+        background-color: #e8fcee;
+        font-size: 13px;
+        width: 100%;
+        display: flex;
+        flex-wrap: wrap; /* Allow wrapping to the next line */
+        justify-content: space-between; /* Distribute items evenly */
+    }
+    .unitDiv {
+        background-color: #d4f0dc;
+        margin: 5px 0; /* Adjust margins for better fitting */
+        padding: 10px; /* Increase padding for better appearance */
+        border: 1px solid #a3d9b3;
+        flex: 0 0 48%; /* Each item takes up 48% of the width */
+        box-sizing: border-box; /* Ensure padding and border are included in the width and height */
+    }
+    .unitDivHeader {
+        font-weight: bold;
+    }
+    body {
+        background-color: #e8fcee;
+    }
+</style>
+
+<div class="testDiv">
+    @foreach (PropertyInfo unit in Battalions.GetType().GetProperties()) {
+        var unitCount = unit.GetValue(Battalions);
+        if (unitCount != null){
+            var unitProperty = unitCount.GetType().GetProperty("Unit");
+            var countProperty = unitCount.GetType().GetProperty("Count");
+            if (unitProperty != null){
+                var unitInstance = unitProperty.GetValue(unitCount);
+                var numUnits = countProperty.GetValue(unitCount);
+                if ((int)numUnits > 0){
+                    <div class="unitDiv">
+                        <div class="unitDivHeader">@unit.Name</div>
+                        <div>Count: @(numUnits)</div>
+                    </div>
+                }
+            }
+        }
+    }
+</div>
+
+@code {
+    [Parameter]
+    public object? Battalions { get; set; }
+}

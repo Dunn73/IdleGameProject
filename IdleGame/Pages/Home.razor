@@ -30,17 +30,33 @@
     <Modal Title="Greetings, choose your Title and Name" OnClose="HandleCloseModal" />
 }
 
-<div style="display: flex; flex-direction: column; width: max-content;">
-<h3 style="font-size: 25px; text-align: center; font-family: garamond, cursive;">@($"{GlobalSave.NewSave.PlayerInfo.KingdomName}")</h3>
-<h3 style="font-size: 18px; text-align: center; font-family: garamond, cursive;">@($"Owned by: {GlobalSave.NewSave.PlayerInfo.Title} {GlobalSave.NewSave.PlayerInfo.Name}")</h3>
-<div style="width: 400px; height: 400px; background-color: aliceblue;"></div>
+<div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px;">
+    <div style="display: flex; flex-direction: column;">
+        <h3 style="font-size: 25px; text-align: center; font-family: garamond, cursive;">@($"{GlobalSave.NewSave.PlayerInfo.KingdomName}")</h3>
+        <h3 style="font-size: 18px; text-align: center; font-family: garamond, cursive;">@($"Owned by: {GlobalSave.NewSave.PlayerInfo.Title} {GlobalSave.NewSave.PlayerInfo.Name}")</h3>
+        <div style="width: 100%; height: 400px; background-color: aliceblue;"></div>
+        <IdleGame.RazorComponents.UnitsRemaining Battalions="GlobalSave.NewSave.PlayerUnits"/>
+        <button @onclick="BuildWizard">Wizard +5</button> 
+        <button @onclick="DamageCalculator">@($"pDamage:{playerDamage}, eDamage:{enemyDamage}")</button>
+        <button @onclick="ResetFile">RESET FILE</button>
+        <button @onclick="Pause"> Pause Timer</button>
+    </div>
+    <div>
+        <IdleGame.RazorComponents.CombatComponent PlayerTotalHealth="playerTotalHealth" PlayerTotalMageOffence="playerTotalMageOffence" PlayerTotalMageDefence="playerTotalMageDefence" 
+        PlayerTotalRangeOffence="playerTotalRangeOffence" PlayerTotalRangeDefence="playerTotalRangeDefence" PlayerTotalMeleeOffence="playerTotalMeleeOffence" playerTotalMeleeDefence="playerTotalMeleeDefence"
+        EnemyTotalHealth ="enemyTotalHealth" EnemyTotalMageOffence="enemyTotalMageOffence" EnemyTotalMageDefence="enemyTotalMageDefence" EnemyTotalRangeOffence="enemyTotalRangeOffence"
+        EnemyTotalRangeDefence="enemyTotalRangeDefence" EnemyTotalMeleeOffence="enemyTotalMeleeOffence" EnemyTotalMeleeDefence="enemyTotalMeleeDefence"
+        />
+        <IdleGame.RazorComponents.DraggableStack/>
+    </div>
+    <div>
+        <h3>Combat</h3>
+        <IdleGame.RazorComponents.CombatComponent/>
+        <IdleGame.RazorComponents.UnitsRemaining Battalions="GlobalSave.NewSave.EnemyUnits"/>
+    </div>
 </div>
 
-<button @onclick="BuildWizard">Wizard +5</button> 
-<button @onclick="KingdomCombat">Combat Simulator</button>
-<button @onclick="ResetFile">RESET FILE</button>
-<button @onclick="EnemyUnit">Enemy Unit Save Tester</button>
-<button @onclick="Pause"> Pause Timer</button>
+
 
 @code {
     public bool paused = false;
@@ -61,11 +77,32 @@
     int lightAnimationValue = 0;
     int lightAnimationInnerValue = 0;
 
-    public async Task EnemyUnit() {
-        Console.WriteLine(GlobalSave.NewSave.EnemyUnits.Archmages.Count);
-    }
+    int currentTotalHealth = 0;
+    int currentTotalMageOffence = 0;
+    int currentTotalMageDefence = 0;
+    int currentTotalRangeOffence = 0;
+    int currentTotalRangeDefence = 0;
+    int currentTotalMeleeOffence = 0;
+    int currentTotalMeleeDefence = 0;
+    int playerTotalHealth = 0;
+    int playerTotalMageOffence = 0;
+    int playerTotalMageDefence = 0;
+    int playerTotalRangeOffence = 0;
+    int playerTotalRangeDefence = 0;
+    int playerTotalMeleeOffence = 0;
+    int playerTotalMeleeDefence = 0;
+    int enemyTotalHealth = 0;
+    int enemyTotalMageOffence = 0;
+    int enemyTotalMageDefence = 0;
+    int enemyTotalRangeOffence = 0;
+    int enemyTotalRangeDefence = 0;
+    int enemyTotalMeleeOffence = 0;
+    int enemyTotalMeleeDefence = 0;
+    long playerDamage = 0;
+    long enemyDamage = 0;
     
     protected override async Task OnInitializedAsync(){
+        GlobalSave.OnPlayerUnitsChanged += StatUpdater;
 
         if (GlobalBool.TimerStarted == false){
             GlobalSave.NewSave = new TutorialSave();
@@ -79,6 +116,7 @@
         }
         else {
             GlobalSave.NewSave = await localStorage.GetItemAsync<EmptySave>("saveState");
+            StatUpdater();
         }
 
         if (GlobalBool.TimerStarted == false){
@@ -132,8 +170,7 @@
             }
         }
     } *@
-
-    public async Task KingdomCombat() {
+    public void ProcessBattle(object battalions) {
         int totalHealth = 0;
         int totalMageOffence = 0;
         int totalMageDefence = 0;
@@ -142,17 +179,15 @@
         int totalMeleeOffence = 0;
         int totalMeleeDefence = 0;
         
-        foreach (PropertyInfo unit in typeof(PlayerBattalions).GetProperties()){
-            var unitCount = unit.GetValue(GlobalSave.NewSave.PlayerUnits);
+        foreach (PropertyInfo unit in battalions.GetType().GetProperties()){
+            var unitCount = unit.GetValue(battalions);
             if (unitCount != null){
-                Console.WriteLine($"{unit.Name}:");
                 var unitProperty = unitCount.GetType().GetProperty("Unit");
                 var countProperty = unitCount.GetType().GetProperty("Count");
                 if (unitProperty != null){
                     var unitInstance = unitProperty.GetValue(unitCount);
                     var numUnits = countProperty.GetValue(unitCount);
                     foreach (var property in unitInstance.GetType().GetProperties()){
-                        Console.WriteLine($"{property.Name}: {property.GetValue(unitInstance)}");
 
                     // Add each unit's property values to the corresponding totals
                     switch (property.Name) {
@@ -185,7 +220,121 @@
                 }
             }
         }
-        Console.WriteLine($"{totalHealth}");
+        currentTotalHealth = totalHealth;
+        currentTotalMageOffence = totalMageOffence;
+        currentTotalMageDefence = totalMageDefence;
+        currentTotalRangeOffence = totalRangeOffence;
+        currentTotalRangeDefence = totalRangeDefence;
+        currentTotalMeleeOffence = totalMeleeOffence;
+        currentTotalMeleeDefence = totalMeleeDefence;
+    }
+
+    // Combat calculator to handle player kingdom under siege
+    public void StatUpdater() {
+        // Collect total stats for player character
+        ProcessBattle(GlobalSave.NewSave.PlayerUnits);
+
+        // Create variable to hold all of the current player stats
+        playerTotalHealth = currentTotalHealth;
+        playerTotalMageOffence = currentTotalMageOffence;
+        playerTotalMageDefence = currentTotalMageDefence;
+        playerTotalRangeOffence = currentTotalRangeOffence;
+        playerTotalRangeDefence = currentTotalRangeDefence;
+        playerTotalMeleeOffence = currentTotalMeleeOffence;
+        playerTotalMeleeDefence = currentTotalMeleeDefence;
+        
+        // Collect total stats for enemy character
+        ProcessBattle(GlobalSave.NewSave.EnemyUnits);
+
+        // Create variable to hold all of hte current enemy stats
+        enemyTotalHealth = currentTotalHealth;
+        enemyTotalMageOffence = currentTotalMageOffence;
+        enemyTotalMageDefence = currentTotalMageDefence;
+        enemyTotalRangeOffence = currentTotalRangeOffence;
+        enemyTotalRangeDefence = currentTotalRangeDefence;
+        enemyTotalMeleeOffence = currentTotalMeleeOffence;
+        enemyTotalMeleeDefence = currentTotalMeleeDefence;
+
+        // Update the ui to reflect changes
+        InvokeAsync(StateHasChanged);
+    }
+    public async Task DamageCalculator() {
+        playerDamage = 0;
+        enemyDamage = 0;
+        // Determine player's damage
+        if (playerTotalMageOffence <= enemyTotalMageDefence) {
+            double mageRatio = 0;
+            
+            mageRatio = Math.Round((double)playerTotalMageOffence/enemyTotalMageDefence, 3);
+            playerDamage += (int)(playerTotalMageOffence * mageRatio);
+
+        }
+        else {
+            double mageDamage = Math.Log(playerTotalMageOffence - enemyTotalMageDefence)*playerTotalMageOffence;
+            playerDamage += (int)mageDamage;
+        }
+
+        if (playerTotalRangeOffence <= enemyTotalRangeDefence) {
+            double rangeRatio = 0;
+            
+            rangeRatio = Math.Round((double)playerTotalRangeOffence/enemyTotalRangeDefence, 3);
+            playerDamage += (int)(playerTotalRangeOffence * rangeRatio);
+
+        }
+        else {
+            double rangeDamage = Math.Log(playerTotalRangeOffence - enemyTotalRangeDefence)*playerTotalRangeOffence;
+            playerDamage += (int)rangeDamage;
+        }
+
+        if (playerTotalMeleeOffence <= enemyTotalMeleeDefence) {
+            double meleeRatio = 0;
+            
+            meleeRatio = Math.Round((double)playerTotalMeleeOffence/enemyTotalMeleeDefence, 3);
+            playerDamage += (int)(playerTotalMeleeOffence * meleeRatio);
+
+        }
+        else {
+            double meleeDamage = Math.Log(playerTotalMeleeOffence - enemyTotalMeleeDefence)*playerTotalMeleeOffence;
+            playerDamage += (int)meleeDamage;
+        }
+
+        // Determine enemy's damage
+        if (enemyTotalMageOffence <= playerTotalMageDefence) {
+            double mageRatio = 0;
+            
+            mageRatio = Math.Round((double)enemyTotalMageOffence/playerTotalMageDefence, 3);
+            enemyDamage += (int)(enemyTotalMageOffence * mageRatio);
+
+        }
+        else {
+            double mageDamage = Math.Log(enemyTotalMageOffence - playerTotalMageDefence);
+            enemyDamage += (int)mageDamage;
+        }
+
+        if (enemyTotalRangeOffence <= playerTotalRangeDefence) {
+            double rangeRatio = 0;
+            
+            rangeRatio = Math.Round((double)playerTotalRangeOffence/playerTotalRangeDefence, 3);
+            enemyDamage += (int)(enemyTotalRangeOffence * rangeRatio);
+
+        }
+        else {
+            double rangeDamage = Math.Log(enemyTotalRangeOffence - playerTotalRangeDefence);
+            enemyDamage += (int)rangeDamage;
+        }
+
+        if (enemyTotalMeleeOffence <= playerTotalMeleeDefence) {
+            double meleeRatio = 0;
+            
+            meleeRatio = Math.Round((double)playerTotalMeleeOffence/playerTotalMeleeDefence, 3);
+            enemyDamage += (int)(enemyTotalMeleeOffence * meleeRatio);
+
+        }
+        else {
+            double meleeDamage = Math.Log(enemyTotalMeleeOffence - playerTotalMeleeDefence);
+            enemyDamage += (int)meleeDamage;
+
+        }
     }
 
     public void BuildWizard() {

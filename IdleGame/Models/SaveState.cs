@@ -148,9 +148,9 @@ public record TutorialSave: EmptySave {
             Wizards = new UnitCount<Wizard>() {Count = 250},
             Warriors = new UnitCount<Warrior>() {Count = 250},
             Rangers = new UnitCount<Ranger>() {Count = 250},
-            Archmages = new UnitCount<Archmage>() {Count = 25},
-            Cannoneers = new UnitCount<Cannoneer>() {Count = 25},
-            Cavalry = new UnitCount<Cavalry>() {Count = 25},
+            Archmages = new UnitCount<Archmage>() {Count = 5},
+            Cannoneers = new UnitCount<Cannoneer>() {Count = 5},
+            Cavalry = new UnitCount<Cavalry>() {Count = 5},
             
         };
 

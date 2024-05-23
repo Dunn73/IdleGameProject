@@ -94,11 +94,11 @@ public class TutorialBoss : Unit {
     public TutorialBoss() {
         Health = 1000000;
         MagicOffence = 250;
-        MagicDefence = 250;
+        MagicDefence = 10000;
         RangeOffence = 250;
-        RangeDefence = 250;
+        RangeDefence = 10000;
         MeleeOffence = 250;
-        MeleeDefence = 250;
+        MeleeDefence = 10000;
         AttackSpeed = 1000;
     }
 }
@@ -124,5 +124,5 @@ public class EnemyBattalions {
     public UnitCount<Cannoneer>? Cannoneers { get; set; } = new UnitCount<Cannoneer>();
     public UnitCount<Cavalry>? Cavalry { get; set; } = new UnitCount<Cavalry>();
     public UnitCount<TutorialBoss>? TutorialBoss { get; set; } = new UnitCount<TutorialBoss>();
-     
+    
 }
