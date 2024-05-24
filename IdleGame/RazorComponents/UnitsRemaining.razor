@@ -1,4 +1,5 @@
 @using System.Reflection
+@using System.Text
 
 <style>
     .testDiv {
@@ -8,17 +9,54 @@
         display: flex;
         flex-wrap: wrap; /* Allow wrapping to the next line */
         justify-content: space-between; /* Distribute items evenly */
+        height: fit-content;
     }
     .unitDiv {
         background-color: #d4f0dc;
         margin: 5px 0; /* Adjust margins for better fitting */
-        padding: 10px; /* Increase padding for better appearance */
+        padding: 5px; /* Increase padding for better appearance */
         border: 1px solid #a3d9b3;
-        flex: 0 0 48%; /* Each item takes up 48% of the width */
+        flex: 0 0    49%; /* Each item takes up 48% of the width */
         box-sizing: border-box; /* Ensure padding and border are included in the width and height */
+        height: fit-content;
+        position: relative;
     }
     .unitDivHeader {
         font-weight: bold;
+    }
+    .unitDivContent {
+        /* Move tooltip container inside the div */
+        position: relative;
+    }
+
+    .unitDiv:hover .tooltip-container {
+        display: block;
+    }
+
+    .unitDiv .tooltip {
+        background-color: #333;
+        color: #fff;
+        text-align: center;
+        border-radius: 4px;
+        padding: 5px;
+        opacity: 0.95; /* Slight transparency for a better look */
+        width: max-content; /* Set the width of the tooltip */
+        border: 3px solid grey; /* Add a 1 pixel black border */
+    }
+
+    .unitDiv:hover .tooltip {
+        display: block;
+    }
+
+    .unitDiv .tooltip::after {
+        content: "";
+        position: absolute;
+        top: -5px; /* Move the arrow to the top */
+        left: 50%;
+        transform: translateX(-50%);
+        border-width: 5px;
+        border-style: solid;
+        border-color: transparent transparent #333 transparent;
     }
     body {
         background-color: #e8fcee;
@@ -34,10 +72,16 @@
             if (unitProperty != null){
                 var unitInstance = unitProperty.GetValue(unitCount);
                 var numUnits = countProperty.GetValue(unitCount);
+                var nameProperty = unitInstance.GetType().GetProperty("Name");
+                var unitName = nameProperty?.GetValue(unitInstance)?.ToString();
                 if ((int)numUnits > 0){
                     <div class="unitDiv">
-                        <div class="unitDivHeader">@unit.Name</div>
-                        <div>Count: @(numUnits)</div>
+                        <Tooltip Content="@(GetTooltipContent(unitInstance))">
+                            <div class="unitDivContent">
+                                <div class="unitDivHeader">@unitName</div>
+                                <div>Count: @(numUnits)</div>
+                            </div>
+                        </Tooltip>
                     </div>
                 }
             }
@@ -48,4 +92,35 @@
 @code {
     [Parameter]
     public object? Battalions { get; set; }
+
+      public MarkupString GetTooltipContent(object unitInstance) {
+        StringBuilder tooltipContent = new StringBuilder();
+        foreach (PropertyInfo property in unitInstance.GetType().GetProperties()) {
+            if (property.Name == "Name"){
+                tooltipContent.AppendLine($"<span style=\"color: red; font-weight: bold;\">{property.GetValue(unitInstance)}</span><hr style=\"margin: 5px;\">");
+            }
+            else if (property.Name == "Health") {
+                tooltipContent.AppendLine($"Health: {property.GetValue(unitInstance)}<br />");
+            }
+            else if (property.Name == "MagicOffence") {
+                tooltipContent.AppendLine($"Magic Attack: {property.GetValue(unitInstance)}<br />");
+            }
+            else if (property.Name == "MagicDefence") {
+                tooltipContent.AppendLine($"Magic Defence: {property.GetValue(unitInstance)}<br />");
+            }
+            else if (property.Name == "RangeOffence") {
+                tooltipContent.AppendLine($"Range Attack: {property.GetValue(unitInstance)}<br />");
+            }
+            else if (property.Name == "RangeDefence") {
+                tooltipContent.AppendLine($"Range Defence: {property.GetValue(unitInstance)}<br />");
+            }
+            else if (property.Name == "MeleeOffence") {
+                tooltipContent.AppendLine($"Melee Attack: {property.GetValue(unitInstance)}<br />");
+            }
+            else if (property.Name == "MeleeDefence") {
+                tooltipContent.AppendLine($"Melee Defence: {property.GetValue(unitInstance)}<br />");
+            }
+        }
+        return new MarkupString(tooltipContent.ToString());
+    }
 }

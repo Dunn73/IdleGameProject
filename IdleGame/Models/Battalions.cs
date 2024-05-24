@@ -2,6 +2,7 @@ namespace Models.Battalions;
 
 
 public class Unit {
+    public string? Name {get; set;} = "";
     public int Health { get; set; } = 0;
     public int MagicOffence { get; set; } = 0;
     public int MagicDefence { get; set; } = 0;
@@ -14,6 +15,7 @@ public class Unit {
 
 public class Wizard : Unit {
     public Wizard() {
+        Name = "Wizard";
         Health = 8;
         MagicOffence = 6;
         MagicDefence = 3;
@@ -27,6 +29,7 @@ public class Wizard : Unit {
 
 public class Warrior : Unit {
     public Warrior() {
+        Name = "Warrior";
         Health = 12;
         MagicOffence = 0;
         MagicDefence = 2;
@@ -40,6 +43,7 @@ public class Warrior : Unit {
 
 public class Ranger : Unit {
     public Ranger() {
+        Name = "Ranger";
         Health = 10;
         MagicOffence = 0;
         MagicDefence = 2;
@@ -53,6 +57,7 @@ public class Ranger : Unit {
 
 public class Archmage : Unit {
     public Archmage() {
+        Name = "Archmage";
         Health = 10;
         MagicOffence = 0;
         MagicDefence = 2;
@@ -66,6 +71,7 @@ public class Archmage : Unit {
 
 public class Cannoneer : Unit {
     public Cannoneer() {
+        Name = "Cannoneer";
         Health = 10;
         MagicOffence = 0;
         MagicDefence = 2;
@@ -79,6 +85,7 @@ public class Cannoneer : Unit {
 
 public class Cavalry : Unit {
     public Cavalry() {
+        Name = "Cavalry";
         Health = 10;
         MagicOffence = 0;
         MagicDefence = 2;
@@ -92,6 +99,7 @@ public class Cavalry : Unit {
 
 public class TutorialBoss : Unit {
     public TutorialBoss() {
+        Name = "Troll Wizard";
         Health = 1000000;
         MagicOffence = 250;
         MagicDefence = 10000;

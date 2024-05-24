@@ -2,7 +2,7 @@
 <ul class="list-group" style="cursor: pointer;">
     @foreach (var item in Items)
     {
-        <li draggable="true"
+        <li draggable="true" style="background-color: #d4f0dc;"
             class="list-group-item"
             @key=@item.Id
             @ondragstart="@( () => OnDragStart(item))"

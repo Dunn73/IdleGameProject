@@ -18,11 +18,6 @@
 <style>
     body {
         background-color: #e8fcee;
-        
-        
-    }
-    .testCss {
-        
     }
 </style>
 
@@ -34,39 +29,48 @@
     <div style="display: flex; flex-direction: column;">
         <h3 style="font-size: 25px; text-align: center; font-family: garamond, cursive;">@($"{GlobalSave.NewSave.PlayerInfo.KingdomName}")</h3>
         <h3 style="font-size: 18px; text-align: center; font-family: garamond, cursive;">@($"Owned by: {GlobalSave.NewSave.PlayerInfo.Title} {GlobalSave.NewSave.PlayerInfo.Name}")</h3>
-        <div style="width: 100%; height: 400px; background-color: aliceblue;"></div>
-        <IdleGame.RazorComponents.UnitsRemaining Battalions="GlobalSave.NewSave.PlayerUnits"/>
-        <button @onclick="BuildWizard">Wizard +5</button> 
-        <button @onclick="DamageCalculator">@($"pDamage:{playerDamage}, eDamage:{enemyDamage}")</button>
-        <button @onclick="ResetFile">RESET FILE</button>
-        <button @onclick="Pause"> Pause Timer</button>
+        @* <div style="width: 100%; height: 400px; background-color: aliceblue;"></div> *@
+        @* <IdleGame.Views.TrollTesting/> *@
+         <img src="castleHighRes.png" alt="Ascii Castle" style="width: 100%; height: 360px;">
+        
+
+        <h3 style = "text-align: center;">Player Units</h3>
+        <IdleGame.RazorComponents.UnitsRemaining Battalions="GlobalSave.NewSave.PlayerUnits"/> 
     </div>
     <div>
+        <h3 style = "text-align: center;">Combat</h3>
         <IdleGame.RazorComponents.CombatComponent PlayerTotalHealth="playerTotalHealth" PlayerTotalMageOffence="playerTotalMageOffence" PlayerTotalMageDefence="playerTotalMageDefence" 
         PlayerTotalRangeOffence="playerTotalRangeOffence" PlayerTotalRangeDefence="playerTotalRangeDefence" PlayerTotalMeleeOffence="playerTotalMeleeOffence" playerTotalMeleeDefence="playerTotalMeleeDefence"
         EnemyTotalHealth ="enemyTotalHealth" EnemyTotalMageOffence="enemyTotalMageOffence" EnemyTotalMageDefence="enemyTotalMageDefence" EnemyTotalRangeOffence="enemyTotalRangeOffence"
         EnemyTotalRangeDefence="enemyTotalRangeDefence" EnemyTotalMeleeOffence="enemyTotalMeleeOffence" EnemyTotalMeleeDefence="enemyTotalMeleeDefence"
         />
+        <h3 style = "text-align: center;">Tank Order</h3>
         <IdleGame.RazorComponents.DraggableStack/>
     </div>
     <div>
-        <h3>Combat</h3>
-        <IdleGame.RazorComponents.CombatComponent/>
-        <IdleGame.RazorComponents.UnitsRemaining Battalions="GlobalSave.NewSave.EnemyUnits"/>
+        @* <IdleGame.RazorComponents.Castle CurrentAnimation="currentAnimation"/> *@
+        <img src="TrollWizardHighRes.png" alt="Ascii Troll" style="width: 100%; height: 360px;">
+        <h3 style = "text-align: center;">Enemy Units</h3>
+        <IdleGame.RazorComponents.UnitsRemaining Battalions="GlobalSave.NewSave.EnemyUnits"/> 
     </div>
 </div>
+
+<button @onclick="BuildWizard">Wizard +5</button> 
+<button @onclick="DamageCalculator">@($"pDamage:{playerDamage}, eDamage:{enemyDamage}")</button>
+<button @onclick="ResetFile">RESET FILE</button>
+<button @onclick="Pause"> Pause Timer</button>
 
 
 
 @code {
-    public bool paused = false;
-    public CancellationTokenSource cancellationTokenSource;
-    public  CancellationToken cancellationToken;
+    bool paused = false;
+    @* public CancellationTokenSource cancellationTokenSource;
+    public  CancellationToken cancellationToken; *@
     bool showModal = false;
     bool lightDirectionRight = true;
     bool lightDirectionRightInner = true;
     bool shouldRender = true;
-    int currentCase = 1;
+    int currentAnimation = 3;
     string[] colorAnimationSchemeLight =["#f8fc6f","#e9ed55", "#e1e62e", "#c7cc06", "#fcbc62", "#e6a64c", "#cc8829", "#a8680f", "#854e03", "#ed773b",
                                         "#cc5c23", "#a3400d", "#7d2c02", "#eb6854", "#c44531", "#9c2816", "#7d190a", "#9c0e0e",
                                          "#ede855", "#cfca48", "#b5b13e", "#999634", "#7d7a29", "#615f20", "#474618", "#363412", "#362612", "#573d1d",
@@ -139,25 +143,28 @@
         GlobalSave.NotifyPlayerUnitsChanged();
         InvokeAsync(StateHasChanged);
     }
-    public void Dispose() {
-        JSRuntime.InvokeVoidAsync("timerWorker.stop");
+    [JSInvokable]
+    public async Task Dispose() {
+        await JSRuntime.InvokeVoidAsync("timerWorker.stop");
     }
-    public void JsTimerStart() {
-        JSRuntime.InvokeVoidAsync("timerWorker.start");
+    [JSInvokable]
+    public async Task JsTimerStart() {
+        await JSRuntime.InvokeVoidAsync("timerWorker.start");
     }
-    public void Pause() {
+    public async Task Pause() {
         if (paused == true) {
+            await JsTimerStart();
             paused = false;
-            JsTimerStart();
         }
         else {
-            paused = true;
-            Dispose();
+            await Dispose();
+             paused = true;
         }
     }
     public async Task ResetFile() {
         await localStorage.RemoveItemAsync("saveState");
-        NavManager.NavigateTo("/", forceLoad:true); // reloads the page so that creation of a new character can trigger
+        NavManager.NavigateTo("/", forceLoad:true); // reloads the page so that creation of a new character can trigger *@
+        await InvokeAsync(StateHasChanged);
     }
     @* public async Task GameTimer(){
         while (GlobalBool.TimerStarted){

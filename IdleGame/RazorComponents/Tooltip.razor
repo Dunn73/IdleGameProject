@@ -1,0 +1,28 @@
+
+<div class="tooltip-container" @onmouseover="ShowTooltip" @onmouseout="HideTooltip">
+    @ChildContent
+    <div class="tooltip" style="display: @(isTooltipVisible ? "block" : "none");">
+        @Content
+    </div>
+</div>
+
+@code {
+    [Parameter]
+
+    // MarkupString allows for including Html into the tooltip
+    public MarkupString Content { get; set; }
+
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+    private bool isTooltipVisible = false;
+
+    private void ShowTooltip()
+    {
+        isTooltipVisible = true;
+    }
+
+    private void HideTooltip()
+    {
+        isTooltipVisible = false;
+    }
+}
