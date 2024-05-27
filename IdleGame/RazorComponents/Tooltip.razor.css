@@ -1,10 +1,8 @@
 .tooltip-container {
     position: relative;
-    display: inline-block;
 }
 
 .tooltip {
-    position: absolute;
     background-color: #2f382f;
     color: #fff;
     text-align: center;
@@ -18,8 +16,6 @@
 }
 
 .tooltip::after {
-    content: "";
-    position: absolute;
     top: 100%; /* At the bottom of the tooltip */
     left: 50%;
     margin-left: -5px;

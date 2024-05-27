@@ -1,0 +1,62 @@
+@* @code {
+    public async Task CastleAnimation() {
+        while (GlobalPage.PageNumber == 1){
+            if (lightAnimationValue == 0){
+                lightDirectionRight = true;
+                lightAnimationValue ++;
+            }
+            else if (lightAnimationValue == colorAnimationSchemeLight.Length-1){
+                lightDirectionRight = false;
+            }
+            if (lightDirectionRight){
+                lightAnimationValue ++;
+            }
+            else {
+                lightAnimationValue --;
+            }
+            if (lightAnimationInnerValue == 0){
+                lightDirectionRightInner = true;
+                lightAnimationInnerValue ++;
+            }
+            else if (lightAnimationInnerValue == colorAnimationSchemeLightInner.Length-1){
+                lightDirectionRightInner = false;
+            }
+            if (lightDirectionRightInner){
+                lightAnimationInnerValue ++;
+            }
+            else {
+                lightAnimationInnerValue --;
+            }
+            StateHasChanged();
+            await Task.Delay(200);
+        }
+    }
+
+       public async Task GameTimer(){
+        while (GlobalBool.TimerStarted){
+            try {
+                await localStorage.SetItemAsync<EmptySave>("saveState", GlobalSave.NewSave);
+                await Task.Delay(1000);
+                StateHasChanged();
+            }
+            catch (TaskCanceledException) {
+            }
+        }
+    } 
+
+        string[] colorAnimationSchemeLight =["#f8fc6f","#e9ed55", "#e1e62e", "#c7cc06", "#fcbc62", "#e6a64c", "#cc8829", "#a8680f", "#854e03", "#ed773b",
+                                        "#cc5c23", "#a3400d", "#7d2c02", "#eb6854", "#c44531", "#9c2816", "#7d190a", "#9c0e0e",
+                                         "#ede855", "#cfca48", "#b5b13e", "#999634", "#7d7a29", "#615f20", "#474618", "#363412", "#362612", "#573d1d",
+                                         "#755227", "#946832", "#b07c3c", "#cf9146", "#f0a74f","#f08d4f", "#d67e47", "#b86c3d", "#965933", "#7a4828", "#57331c",
+                                          "#451e15", "#662c1f", "#8a3b29", "#b04c35", "#d45b3f", "#f06748"];
+    string[] colorAnimationSchemeLightInner =["#f55", "#de4747", "#ba3a3a", "#ba3a3a", "#ba3a3a", "#ba3a3a", "#2e0e0e", "#2e0e0e", "#691f1f", "#822626", 
+                                              "#9e2e2e", "#b83535", "#b83535", "#d43d3d", "#fa4848"];
+
+        int lightAnimationValue = 0;
+    int lightAnimationInnerValue = 0;
+
+        bool lightDirectionRight = true;
+    bool lightDirectionRightInner = true;
+
+    
+} *@

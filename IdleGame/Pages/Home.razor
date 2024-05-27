@@ -29,11 +29,9 @@
     <div style="display: flex; flex-direction: column;">
         <h3 style="font-size: 25px; text-align: center; font-family: garamond, cursive;">@($"{GlobalSave.NewSave.PlayerInfo.KingdomName}")</h3>
         <h3 style="font-size: 18px; text-align: center; font-family: garamond, cursive;">@($"Owned by: {GlobalSave.NewSave.PlayerInfo.Title} {GlobalSave.NewSave.PlayerInfo.Name}")</h3>
-        @* <div style="width: 100%; height: 400px; background-color: aliceblue;"></div> *@
-        @* <IdleGame.Views.TrollTesting/> *@
+
          <img src="castleHighRes.png" alt="Ascii Castle" style="width: 100%; height: 360px;">
         
-
         <h3 style = "text-align: center;">Player Units</h3>
         <IdleGame.RazorComponents.UnitsRemaining Battalions="GlobalSave.NewSave.PlayerUnits"/> 
     </div>
@@ -45,7 +43,14 @@
         EnemyTotalRangeDefence="enemyTotalRangeDefence" EnemyTotalMeleeOffence="enemyTotalMeleeOffence" EnemyTotalMeleeDefence="enemyTotalMeleeDefence"
         />
         <h3 style = "text-align: center;">Tank Order</h3>
-        <IdleGame.RazorComponents.DraggableStack/>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div><div style="text-align: center;">Player</div>
+                <IdleGame.RazorComponents.TankOrder IsPlayerUnit="true" Battalions="GlobalSave.NewSave.PlayerUnits"/>
+            </div>
+            <div><div style="text-align: center;"><i class="fa-solid fa-crown" style="color: #dfbf4e;"></i> &nbsp;Enemy</div>
+            <IdleGame.RazorComponents.TankOrder Battalions="GlobalSave.NewSave.EnemyUnits" IsPlayerUnit="false"/>
+            </div>
+        </div>
     </div>
     <div>
         @* <IdleGame.RazorComponents.Castle CurrentAnimation="currentAnimation"/> *@
@@ -67,19 +72,8 @@
     @* public CancellationTokenSource cancellationTokenSource;
     public  CancellationToken cancellationToken; *@
     bool showModal = false;
-    bool lightDirectionRight = true;
-    bool lightDirectionRightInner = true;
     bool shouldRender = true;
     int currentAnimation = 3;
-    string[] colorAnimationSchemeLight =["#f8fc6f","#e9ed55", "#e1e62e", "#c7cc06", "#fcbc62", "#e6a64c", "#cc8829", "#a8680f", "#854e03", "#ed773b",
-                                        "#cc5c23", "#a3400d", "#7d2c02", "#eb6854", "#c44531", "#9c2816", "#7d190a", "#9c0e0e",
-                                         "#ede855", "#cfca48", "#b5b13e", "#999634", "#7d7a29", "#615f20", "#474618", "#363412", "#362612", "#573d1d",
-                                         "#755227", "#946832", "#b07c3c", "#cf9146", "#f0a74f","#f08d4f", "#d67e47", "#b86c3d", "#965933", "#7a4828", "#57331c",
-                                          "#451e15", "#662c1f", "#8a3b29", "#b04c35", "#d45b3f", "#f06748"];
-    string[] colorAnimationSchemeLightInner =["#f55", "#de4747", "#ba3a3a", "#ba3a3a", "#ba3a3a", "#ba3a3a", "#2e0e0e", "#2e0e0e", "#691f1f", "#822626", 
-                                              "#9e2e2e", "#b83535", "#b83535", "#d43d3d", "#fa4848"];
-    int lightAnimationValue = 0;
-    int lightAnimationInnerValue = 0;
 
     int currentTotalHealth = 0;
     int currentTotalMageOffence = 0;
@@ -139,6 +133,11 @@
     // Currently responsible for using javascript web worker to save current save to local storage
     private void SaveLocalStorage() {
         GlobalSave.NewSave.PlayerUnits.Wizards.Count ++;
+        GlobalSave.NewSave.PlayerUnits.Warriors.Count ++;
+        GlobalSave.NewSave.PlayerUnits.Rangers.Count ++;
+        GlobalSave.NewSave.PlayerUnits.Archmages.Count ++;
+        GlobalSave.NewSave.PlayerUnits.Cavalry.Count ++;
+        GlobalSave.NewSave.PlayerUnits.Cannoneers.Count ++;
         localStorage.SetItemAsync<EmptySave>("saveState", GlobalSave.NewSave);
         GlobalSave.NotifyPlayerUnitsChanged();
         InvokeAsync(StateHasChanged);
@@ -166,17 +165,6 @@
         NavManager.NavigateTo("/", forceLoad:true); // reloads the page so that creation of a new character can trigger *@
         await InvokeAsync(StateHasChanged);
     }
-    @* public async Task GameTimer(){
-        while (GlobalBool.TimerStarted){
-            try {
-                await localStorage.SetItemAsync<EmptySave>("saveState", GlobalSave.NewSave);
-                await Task.Delay(1000);
-                StateHasChanged();
-            }
-            catch (TaskCanceledException) {
-            }
-        }
-    } *@
     public void ProcessBattle(object battalions) {
         int totalHealth = 0;
         int totalMageOffence = 0;
@@ -321,7 +309,7 @@
         if (enemyTotalRangeOffence <= playerTotalRangeDefence) {
             double rangeRatio = 0;
             
-            rangeRatio = Math.Round((double)playerTotalRangeOffence/playerTotalRangeDefence, 3);
+            rangeRatio = Math.Round((double)enemyTotalRangeOffence/playerTotalRangeDefence, 3);
             enemyDamage += (int)(enemyTotalRangeOffence * rangeRatio);
 
         }
@@ -333,7 +321,7 @@
         if (enemyTotalMeleeOffence <= playerTotalMeleeDefence) {
             double meleeRatio = 0;
             
-            meleeRatio = Math.Round((double)playerTotalMeleeOffence/playerTotalMeleeDefence, 3);
+            meleeRatio = Math.Round((double)enemyTotalMeleeOffence/playerTotalMeleeDefence, 3);
             enemyDamage += (int)(enemyTotalMeleeOffence * meleeRatio);
 
         }
@@ -342,6 +330,10 @@
             enemyDamage += (int)meleeDamage;
 
         }
+    }
+
+    public async Task DamageUpdater() {
+
     }
 
     public void BuildWizard() {
@@ -359,39 +351,6 @@
             
         }
     
-    }
-
-    public async Task CastleAnimation() {
-        while (GlobalPage.PageNumber == 1){
-            if (lightAnimationValue == 0){
-                lightDirectionRight = true;
-                lightAnimationValue ++;
-            }
-            else if (lightAnimationValue == colorAnimationSchemeLight.Length-1){
-                lightDirectionRight = false;
-            }
-            if (lightDirectionRight){
-                lightAnimationValue ++;
-            }
-            else {
-                lightAnimationValue --;
-            }
-            if (lightAnimationInnerValue == 0){
-                lightDirectionRightInner = true;
-                lightAnimationInnerValue ++;
-            }
-            else if (lightAnimationInnerValue == colorAnimationSchemeLightInner.Length-1){
-                lightDirectionRightInner = false;
-            }
-            if (lightDirectionRightInner){
-                lightAnimationInnerValue ++;
-            }
-            else {
-                lightAnimationInnerValue --;
-            }
-            StateHasChanged();
-            await Task.Delay(200);
-        }
     }
      private async Task HandleSubmit(string titleAndName)
     {

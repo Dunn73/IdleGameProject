@@ -10,6 +10,7 @@ public class Unit {
     public int RangeDefence { get; set; } = 0;
     public int MeleeOffence { get; set; } = 0;
     public int MeleeDefence { get; set; } = 0;
+    public double? TankEffectiveness {get; set;} = 0.0;
     public int AttackSpeed { get; set; } = 1000;
 }
 
@@ -23,6 +24,7 @@ public class Wizard : Unit {
         RangeDefence = 1;
         MeleeOffence = 1;
         MeleeDefence = 1;
+        TankEffectiveness = 0.5;
         AttackSpeed = 1000;
     }
 }
@@ -37,6 +39,7 @@ public class Warrior : Unit {
         RangeDefence = 5;
         MeleeOffence = 5;
         MeleeDefence = 5;
+        TankEffectiveness = 0.7;
         AttackSpeed = 1000;
     }
 }
@@ -51,6 +54,7 @@ public class Ranger : Unit {
         RangeDefence = 2;
         MeleeOffence = 1;
         MeleeDefence = 2;
+        TankEffectiveness = 0.5;
         AttackSpeed = 1000;
     }
 }
@@ -65,6 +69,7 @@ public class Archmage : Unit {
         RangeDefence = 2;
         MeleeOffence = 1;
         MeleeDefence = 2;
+        TankEffectiveness = 0.6;
         AttackSpeed = 1000;
     }
 }
@@ -79,6 +84,7 @@ public class Cannoneer : Unit {
         RangeDefence = 2;
         MeleeOffence = 1;
         MeleeDefence = 2;
+        TankEffectiveness = 0.6;
         AttackSpeed = 1000;
     }
 }
@@ -93,6 +99,7 @@ public class Cavalry : Unit {
         RangeDefence = 2;
         MeleeOffence = 10;
         MeleeDefence = 2;
+        TankEffectiveness = 0.75;
         AttackSpeed = 1000;
     }
 }
@@ -107,6 +114,7 @@ public class TutorialBoss : Unit {
         RangeDefence = 10000;
         MeleeOffence = 250;
         MeleeDefence = 10000;
+        TankEffectiveness = 0.9;
         AttackSpeed = 1000;
     }
 }
@@ -114,6 +122,10 @@ public class TutorialBoss : Unit {
 public class UnitCount<T> where T : Unit, new() {
     public T Unit { get; set; } = new T();
     public int? Count { get; set; } = 0;
+    public int? HP {get; set;} 
+    public UnitCount() {
+        HP = Unit.Health;
+    }
 }
 
 public class PlayerBattalions {

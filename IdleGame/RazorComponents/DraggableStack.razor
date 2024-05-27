@@ -1,55 +1,61 @@
+@inject IJSRuntime JSRuntime
+@using System.Reflection
+@using System.Text
+@using System.Timers;
 
-<ul class="list-group" style="cursor: pointer;">
-    @foreach (var item in Items)
+<style>
+    .draggable-item {
+        color: navy;
+
+    }
+    .draggable-item:hover {
+        color: red;
+        background-color: #9fc7aa !important;
+    }
+      
+</style>
+
+<ul class="list-group">
+    @foreach (var item in Units)
     {
-        <li draggable="true" style="background-color: #d4f0dc;"
-            class="list-group-item"
-            @key=@item.Id
-            @ondragstart="@( () => OnDragStart(item))"
-            @ondragover:preventDefault
-            @ondragover="@( (e) => OnDragOver(e))"
-            @ondrop="@( () => OnDrop(item))">
-            @item.Name
+        <li draggable="true" id ="@(id)"
+            class="list-group-item draggable-item"
+            style="background-color: #d4f0dc;">
+            @item
         </li>
     }
-</ul>
+</ul>   
 
 @code {
-    public class Item
-    {
-        public int Id { get; set; }
-        public string Name { get; set; }
+     [Parameter]
+    public object? Battalions { get; set; }
+
+    private List<string> Units = new();
+    
+    int id = 0;
+
+    protected override void OnInitialized() {
+        PopulateItems();
     }
 
-    private List<Item> Items = new()
-    {
-        new Item { Id = 1, Name = "Warrior" },
-        new Item { Id = 2, Name = "Wizard" },
-        new Item { Id = 3, Name = "Ranger" },
-        new Item { Id = 4, Name = "Cannoneer" }
-    };
-
-    private Item? draggedItem;
-
-    private void OnDragStart(Item item)
-    {
-        draggedItem = item;
-    }
-
-    private void OnDragOver(DragEventArgs e)
-    {
-        
-    }
-
-    private void OnDrop(Item targetItem)
-    {
-        if (draggedItem != null)
-        {
-            var draggedIndex = Items.IndexOf(draggedItem);
-            var targetIndex = Items.IndexOf(targetItem);
-            Items.RemoveAt(draggedIndex);
-            Items.Insert(targetIndex, draggedItem);
-            draggedItem = null;
+    private void PopulateItems() {
+        int id = 1;
+        foreach (PropertyInfo unit in Battalions.GetType().GetProperties()) {
+            var unitCount = unit.GetValue(Battalions);
+            if (unitCount != null) {
+                var unitProperty = unitCount.GetType().GetProperty("Unit");
+                var countProperty = unitCount.GetType().GetProperty("Count");
+                if (unitProperty != null) {
+                    var unitInstance = unitProperty.GetValue(unitCount);
+                    var numUnits = (int)countProperty.GetValue(unitCount);
+                    var nameProperty = unitInstance.GetType().GetProperty("Name");
+                    var unitName = nameProperty?.GetValue(unitInstance)?.ToString();
+                    if (numUnits > 0) {
+                        Units.Add(unitName);
+                        id++;
+                    }
+                }
+            }
         }
     }
 }
