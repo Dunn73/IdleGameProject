@@ -1,8 +1,7 @@
-// wwwroot/js/timerWorker.js
 self.onmessage = function(e) {
-    if (e.data === 'start') {
+    if (e.data === 'kingdomCombatStart') {
         startTimer();
-    } else if (e.data === 'stop') {
+    } else if (e.data === 'kingdomCombatStop') {
         stopTimer();
     }
 };
@@ -11,8 +10,8 @@ let timerId;
 
 function startTimer() {
     timerId = setInterval(() => {
-        postMessage('tick');
-    }, 200 ); // Global game timer interval
+        postMessage('kingdomCombatTick');
+    }, 1000); // Global game timer interval
 }
 
 function stopTimer() {

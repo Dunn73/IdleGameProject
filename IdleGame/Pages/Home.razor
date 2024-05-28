@@ -62,10 +62,11 @@
 
 <button @onclick="BuildWizard">Wizard +5</button> 
 <button @onclick="DeleteAllWizards">Delete Wizards</button> 
-<button @onclick="DamageCalculator">@($"pDamage:{playerDamage}, eDamage:{enemyDamage}")</button>
+<button @onclick="KingdomCombat">@($"pDamage:{playerDamage}, eDamage:{enemyDamage}")</button>
 <button @onclick="ResetFile">RESET FILE</button>
 <button @onclick="Pause"> Pause Timer</button>
 <button @onclick="ThreeSecondUnitUpdater">3 Second ++</button>
+<button @onclick="DamageCalculator">@($"pDamage:{playerDamage}, eDamage:{enemyDamage}")</button>
 
 
 
@@ -122,7 +123,8 @@
         if (GlobalBool.TimerStarted == false){
             GlobalVariable.FirstRender = false;
             GlobalBool.TimerStarted = true;
-            await JSRuntime.InvokeVoidAsync("timerWorker.start");
+            await JSRuntime.InvokeVoidAsync("timerWorker.resourceStart");
+            await JSRuntime.InvokeVoidAsync("timerWorker.kingdomCombatStart");
             GlobalSave.OnTimeChanged += SaveLocalStorage;
         }
     }
@@ -130,17 +132,24 @@
     public async Task ThreeSecondUnitUpdater(){
         await Task.Delay(3000);
         GlobalSave.NewSave.PlayerUnits.Wizards.Count ++;
+        GlobalSave.NotifyPlayerUnitsChanged();
     }
     
     [JSInvokable]
-    public static async Task OnTimerTick() {
+    public static async Task OnResourceTick() {
+        Console.WriteLine("Resource tick");
         GlobalSave.NotifyTimeChanged();
         await Task.CompletedTask;
     }
+    [JSInvokable]
+    public static async Task OnKingdomCombatTick() {
+        await Task.CompletedTask;
+        
+    }
     // Currently responsible for using javascript web worker to save current save to local storage
     private void SaveLocalStorage() {
-        @* GlobalSave.NewSave.PlayerUnits.Wizards.Count ++;
-        GlobalSave.NewSave.PlayerUnits.Warriors.Count ++;
+        @* GlobalSave.NewSave.PlayerUnits.Wizards.Count ++; *@
+        @* GlobalSave.NewSave.PlayerUnits.Warriors.Count ++;
         GlobalSave.NewSave.PlayerUnits.Rangers.Count ++;
         GlobalSave.NewSave.PlayerUnits.Archmages.Count ++;
         GlobalSave.NewSave.PlayerUnits.Cavalry.Count ++;
@@ -248,7 +257,7 @@
         // Collect total stats for enemy character
         ProcessBattle(GlobalSave.NewSave.EnemyUnits);
 
-        // Create variable to hold all of hte current enemy stats
+        // Create variable to hold all of the current enemy stats
         enemyTotalHealth = currentTotalHealth;
         enemyTotalMageOffence = currentTotalMageOffence;
         enemyTotalMageDefence = currentTotalMageDefence;
@@ -262,7 +271,7 @@
     }
     public async Task DamageCalculator() {
         playerDamage = 0;
-        enemyDamage = 0;
+        enemyDamage = 0;    
         // Determine player's damage
         if (playerTotalMageOffence <= enemyTotalMageDefence) {
             double mageRatio = 0;
@@ -272,8 +281,9 @@
 
         }
         else {
-            double mageDamage = Math.Log(playerTotalMageOffence - enemyTotalMageDefence)*playerTotalMageOffence;
-            playerDamage += (int)mageDamage;
+            double mageRatio = 0;
+            mageRatio = Math.Log((playerTotalMageOffence - enemyTotalMageDefence), 10);
+            playerDamage += (int)(playerTotalMageOffence*mageRatio);
         }
 
         if (playerTotalRangeOffence <= enemyTotalRangeDefence) {
@@ -284,8 +294,9 @@
 
         }
         else {
-            double rangeDamage = Math.Log(playerTotalRangeOffence - enemyTotalRangeDefence)*playerTotalRangeOffence;
-            playerDamage += (int)rangeDamage;
+            double rangeRatio = 0;
+            rangeRatio = Math.Log((playerTotalRangeOffence - enemyTotalRangeDefence), 10);
+            playerDamage += (int)(playerTotalRangeOffence*rangeRatio);
         }
 
         if (playerTotalMeleeOffence <= enemyTotalMeleeDefence) {
@@ -296,8 +307,9 @@
 
         }
         else {
-            double meleeDamage = Math.Log(playerTotalMeleeOffence - enemyTotalMeleeDefence)*playerTotalMeleeOffence;
-            playerDamage += (int)meleeDamage;
+            double meleeRatio = 0;
+            meleeRatio = Math.Log((playerTotalMeleeOffence - enemyTotalMeleeDefence), 10);
+            playerDamage += (int)(playerTotalMeleeOffence*meleeRatio);
         }
 
         // Determine enemy's damage
@@ -309,8 +321,9 @@
 
         }
         else {
-            double mageDamage = Math.Log(enemyTotalMageOffence - playerTotalMageDefence);
-            enemyDamage += (int)mageDamage;
+            double mageRatio = 0;
+            mageRatio = Math.Log((enemyTotalMageOffence - playerTotalMageDefence), 10);
+            enemyDamage += (int)(enemyTotalMageOffence*mageRatio);
         }
 
         if (enemyTotalRangeOffence <= playerTotalRangeDefence) {
@@ -321,8 +334,9 @@
 
         }
         else {
-            double rangeDamage = Math.Log(enemyTotalRangeOffence - playerTotalRangeDefence);
-            enemyDamage += (int)rangeDamage;
+            double rangeRatio = 0;
+            rangeRatio = Math.Log((enemyTotalRangeOffence - playerTotalRangeDefence), 10);
+            enemyDamage += (int)(enemyTotalRangeOffence*rangeRatio);
         }
 
         if (enemyTotalMeleeOffence <= playerTotalMeleeDefence) {
@@ -333,14 +347,113 @@
 
         }
         else {
-            double meleeDamage = Math.Log(enemyTotalMeleeOffence - playerTotalMeleeDefence);
-            enemyDamage += (int)meleeDamage;
+            double meleeRatio = 0;
+            meleeRatio = Math.Log((enemyTotalMeleeOffence - playerTotalMeleeDefence), 10);
+            enemyDamage += (int)(enemyTotalMeleeOffence*meleeRatio);
 
         }
     }
 
-    public async Task DamageUpdater() {
+    public async Task DamageUpdater(object battalions, bool isPlayer) {
+    // Calculate how much damage the player and enemy will do to each other
 
+    // Create a list to hold units with Count > 0
+    var unitsList = new List<object>();
+
+    // Collect the units with Count > 0
+    foreach (PropertyInfo unit in battalions.GetType().GetProperties()) {
+        var thisUnit = unit.GetValue(battalions);
+        if (thisUnit != null) {
+            var unitProperty = thisUnit.GetType().GetProperty("Unit");
+            var countProperty = thisUnit.GetType().GetProperty("Count");
+            var numUnits = (int?)countProperty?.GetValue(thisUnit);
+
+            if (numUnits > 0) {
+                unitsList.Add(thisUnit);
+            }
+        }
+    }
+
+    // Sort the list by TankOrder
+    unitsList.Sort((unit1, unit2) => {
+        var tankOrder1 = (int?)unit1.GetType().GetProperty("Unit")?.GetValue(unit1)?.GetType().GetProperty("TankOrder")?.GetValue(unit1.GetType().GetProperty("Unit")?.GetValue(unit1));
+        var tankOrder2 = (int?)unit2.GetType().GetProperty("Unit")?.GetValue(unit2)?.GetType().GetProperty("TankOrder")?.GetValue(unit2.GetType().GetProperty("Unit")?.GetValue(unit2));
+        return tankOrder1.GetValueOrDefault().CompareTo(tankOrder2.GetValueOrDefault());
+    });
+
+    double? maxDamage;
+    double? remainingDamage;
+
+    // Apply the damage
+    if (isPlayer){
+        maxDamage = enemyDamage;
+        remainingDamage = enemyDamage;
+    }
+    else {
+        maxDamage = playerDamage;
+        remainingDamage = playerDamage;
+    }
+    int count = 0;
+
+    foreach (var unit in unitsList) {
+
+        // Used to check if the unit is the last unit in the list, and if so apply the remaining damage to it
+        count ++;
+
+        var unitInstance = unit.GetType().GetProperty("Unit")?.GetValue(unit);
+        var countProperty = unit.GetType().GetProperty("Count");
+        var hpProperty = unit.GetType().GetProperty("HP");
+
+        var numUnits = (int?)countProperty?.GetValue(unit);
+        var healthProperty = unitInstance?.GetType().GetProperty("Health");
+        var tankEffectivenessProperty = unitInstance?.GetType().GetProperty("TankEffectiveness");
+
+        var unitHealth = (int?)healthProperty?.GetValue(unitInstance);
+        var unitHP = (int?)hpProperty?.GetValue(unit);
+        var tankEffectiveness = (double?)tankEffectivenessProperty?.GetValue(unitInstance);
+
+        if (count != unitsList.Count){
+            maxDamage = remainingDamage * tankEffectiveness.GetValueOrDefault();
+            remainingDamage -= maxDamage;
+        }
+        else {
+            maxDamage = remainingDamage;
+        }
+
+        // Checks if the damage being done to the current unit would exceed a single units HP, and if its HP was currently less than max
+        if (maxDamage >= unitHP){
+            maxDamage -= (double)unitHP;
+            unitHP = unitHealth;
+            numUnits --;
+        }
+        else {
+            unitHP -= (int)maxDamage;
+            hpProperty?.SetValue(unit, unitHP);
+            continue;
+        }
+
+        if (numUnits > 0){
+            int? totalHp = unitHealth * numUnits;
+            if (maxDamage >= totalHp) {
+                remainingDamage += (maxDamage - totalHp);
+                numUnits = 0;
+            }
+            else {
+                int? unitsKilled = (int)maxDamage / unitHealth;
+                int? excessDamage = (int)maxDamage % unitHealth;
+                numUnits -= unitsKilled;
+                unitHP -= excessDamage;
+            }
+        }
+        countProperty?.SetValue(unit, numUnits);
+        hpProperty?.SetValue(unit, unitHP);
+    }
+}
+
+    private async Task KingdomCombat() {
+        await DamageCalculator();
+        await DamageUpdater(GlobalSave.NewSave.PlayerUnits, true);
+        await DamageUpdater(GlobalSave.NewSave.EnemyUnits, false);
     }
 
     public void BuildWizard() {

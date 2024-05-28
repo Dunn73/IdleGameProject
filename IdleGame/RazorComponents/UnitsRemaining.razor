@@ -61,20 +61,20 @@
 
 <div class="testDiv">
     @foreach (PropertyInfo unit in Battalions.GetType().GetProperties()) {
-        var unitCount = unit.GetValue(Battalions);
-        if (unitCount != null){
-            var unitProperty = unitCount.GetType().GetProperty("Unit");
-            var countProperty = unitCount.GetType().GetProperty("Count");
-            var hpProperty = unitCount.GetType().GetProperty("HP");
+        var thisUnit = unit.GetValue(Battalions);
+        if (thisUnit != null){
+            var unitProperty = thisUnit.GetType().GetProperty("Unit");
+            var countProperty = thisUnit.GetType().GetProperty("Count");
+            var hpProperty = thisUnit.GetType().GetProperty("HP");
             if (unitProperty != null){
-                var unitInstance = unitProperty.GetValue(unitCount);
-                var numUnits = countProperty.GetValue(unitCount);
+                var unitInstance = unitProperty.GetValue(thisUnit);
+                var numUnits = countProperty.GetValue(thisUnit);
                 var nameProperty = unitInstance.GetType().GetProperty("Name");
                 var healthProperty = unitInstance.GetType().GetProperty("Health");
                 var unitName = nameProperty?.GetValue(unitInstance)?.ToString();
                 if ((int)numUnits > 0){
                     // Calculate HP percentage
-                    var hp = (int?)hpProperty.GetValue(unitCount);
+                    var hp = (int?)hpProperty.GetValue(thisUnit);
                     var maxHp = (int?)healthProperty.GetValue(unitInstance);
                     var hpPercentage = (double)hp / maxHp * 100;
 

@@ -160,6 +160,12 @@ public record TutorialSave: EmptySave {
             
         };
 
+        PlayerInfo = new PlayerInfo {
+            Title = "",
+            Name = "Taquito",
+            KingdomName = "Kebabland"
+        };
+
         EnemyUnits.TutorialBoss.Unit.TankOrder = 1;
         EnemyUnits.Archmages.Unit.TankOrder = 2;
     }
