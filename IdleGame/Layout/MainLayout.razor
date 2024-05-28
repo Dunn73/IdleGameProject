@@ -50,12 +50,12 @@
     }
 
     private void LoadPlayerUnits(){
-        numWizards = GlobalSave.NewSave.PlayerUnits.Wizards.Count;
-        numWarriors = GlobalSave.NewSave.PlayerUnits.Warriors.Count;
-        numRangers = GlobalSave.NewSave.PlayerUnits.Rangers.Count; 
-        numArchmages = GlobalSave.NewSave.PlayerUnits.Archmages.Count;
-        numCavalry = GlobalSave.NewSave.PlayerUnits.Cavalry.Count;
-        numCannoneers = GlobalSave.NewSave.PlayerUnits.Cannoneers.Count;
+        numWizards = GlobalSave.NewSave?.PlayerUnits.Wizards.Count;
+        numWarriors = GlobalSave.NewSave?.PlayerUnits.Warriors.Count;
+        numRangers = GlobalSave.NewSave?.PlayerUnits.Rangers.Count; 
+        numArchmages = GlobalSave.NewSave?.PlayerUnits.Archmages.Count;
+        numCavalry = GlobalSave.NewSave?.PlayerUnits.Cavalry.Count;
+        numCannoneers = GlobalSave.NewSave?.PlayerUnits.Cannoneers.Count;
     }
 
     private void UpdatePlayerUnits() {

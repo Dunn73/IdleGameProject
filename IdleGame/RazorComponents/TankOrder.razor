@@ -26,14 +26,14 @@
         <li draggable="@IsPlayerUnit"
             class="list-group-item @(Convert.ToBoolean(IsPlayerUnit) ? "draggable-item" : "") @(IsDraggedOver(item) ? "dragging-over" : "")"
             style="background-color: #d4f0dc;"
-            @key=@item.Id
+            @key=@item.TankOrder
             @onmousedown="@( () => OnMouseDown(item))"
             @onmouseup="@( () => OnMouseUp(item))"
             @ondragstart="@( () => OnDragStart(item))"
             @ondragend="@( () => OnDragEnd(item))"
             @ondragover:preventDefault
             @ondragover="@( () => OnDragOver(item))">
-            @item.Name <i class=" @((item.Id ==1) ? "fa-solid fa-shield-halved" : "")" style="color: #dfbf4e;"></i>
+            @item.Name @item.Id <i class=" @((item == DynamicItems.OrderBy(item => item.TankOrder).FirstOrDefault()) ? "fa-solid fa-shield-halved" : "")" style="color: #13489e;"></i>
         </li>
     }
 </ul>   
@@ -53,18 +53,16 @@
     [Parameter]
     public object? Battalions { get; set; }
 
-    public class Item
-    {
+    public class Item {
         public int Id { get; set; }
         public string Name { get; set; }
         public int Count { get; set; }
+        public int TankOrder { get; set; }
     }
 
     private List<Item> DynamicItems = new();
 
-    protected override void OnInitialized()
-    {
-        base.OnInitialized();
+    protected override void OnInitialized() {
         PopulateDynamicItems();
     }
 
@@ -79,12 +77,15 @@
                     var unitInstance = unitProperty.GetValue(unitCount);
                     var numUnits = (int)countProperty.GetValue(unitCount);
                     var nameProperty = unitInstance.GetType().GetProperty("Name");
+                    var tankProperty = unitInstance.GetType().GetProperty("TankOrder");
                     var unitName = nameProperty?.GetValue(unitInstance)?.ToString();
+                    var unitTankOrder = Convert.ToInt32(tankProperty?.GetValue(unitInstance));
                     if (numUnits > 0) {
                         DynamicItems.Add(new Item {
                             Id = id++,
                             Name = unitName,
-                            Count = numUnits
+                            Count = numUnits,
+                            TankOrder = unitTankOrder
                         });
                     }
                 }
@@ -92,24 +93,24 @@
         }
     }
 
-    private bool  IsDraggedOver(Item item)
+    private bool IsDraggedOver(Item item)
     {
         return targetItem != null && targetItem == item;
     }
 
-    private async void OnMouseDown(Item item) {
+    private void OnMouseDown(Item item) {
         draggedItem = item;
         
     }
-    private async void OnMouseUp(Item item) {
+    private void OnMouseUp(Item item) {
         draggedItem = null;
         
 
     }
 
-    private async void OnDragStart(Item item) {
-      hoverColor = "black";
-     backGroundColor = "#b4d4bd";
+    private void OnDragStart(Item item) {
+        hoverColor = "black";
+        backGroundColor = "#b4d4bd";
         
     }
     private async void OnDragEnd(Item item)
@@ -126,21 +127,28 @@
         await InvokeAsync(StateHasChanged);
     }
 
-    private void OnDragOver(Item item) {
-        targetItem = item;
-        if (draggedItem != null && targetItem != null && draggedItem != targetItem) {
-            var draggedIndex = DynamicItems.IndexOf(draggedItem);
-            var targetIndex = DynamicItems.IndexOf(targetItem);
-            if (draggedIndex != targetIndex) {
-                DynamicItems.Remove(draggedItem);
-                DynamicItems.Insert(targetIndex, draggedItem);
+        private void OnDragOver(Item item) {
+            targetItem = item;
+            if (draggedItem != null && targetItem != null && draggedItem != targetItem) {
+                var draggedIndex = DynamicItems.IndexOf(draggedItem);
+                var targetIndex = DynamicItems.IndexOf(targetItem);
+                if (draggedIndex != targetIndex) {
+
+                    // Rearrange the TankOrder values
+                    int tempOrder = draggedItem.TankOrder;
+                    draggedItem.TankOrder = targetItem.TankOrder;
+                    targetItem.TankOrder = tempOrder;
+                    
+                    // Update the list
+                    DynamicItems.Remove(draggedItem);
+                    DynamicItems.Insert(targetIndex, draggedItem);
+                }
             }
         }
-    }
     private void ResetItemIds() {
         int id = 1;
         foreach (var item in DynamicItems) {
             item.Id = id++;
-        }
+        } 
     }
 }

@@ -156,8 +156,12 @@ public record TutorialSave: EmptySave {
 
         EnemyUnits = new EnemyBattalions {
             Archmages = new UnitCount<Archmage>() {Count = 25},
-            TutorialBoss = new UnitCount<TutorialBoss>() {Count = 1}
+            TutorialBoss = new UnitCount<TutorialBoss>() {Count = 1},
+            
         };
+
+        EnemyUnits.TutorialBoss.Unit.TankOrder = 1;
+        EnemyUnits.Archmages.Unit.TankOrder = 2;
     }
     
 }

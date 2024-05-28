@@ -12,9 +12,11 @@ public class GlobalBool {
 public class GlobalSave {
     public static EmptySave? NewSave {get; set;}
     public static event Action? OnPlayerUnitsChanged;
-    public static void NotifyPlayerUnitsChanged() => OnPlayerUnitsChanged.Invoke();
+    public static void NotifyPlayerUnitsChanged() => OnPlayerUnitsChanged?.Invoke();
     public static event Action? OnTimeChanged;
-    public static void NotifyTimeChanged() => OnTimeChanged.Invoke();
+    public static void NotifyTimeChanged() => OnTimeChanged?.Invoke();
+    public static event Action? OnPlayerUnitsCreatedOrDestroyed;
+    public static void NotifyPlayerUnitsCreatedOrDestroyed() => OnPlayerUnitsCreatedOrDestroyed?.Invoke();
 }
 
 public class GlobalPage {

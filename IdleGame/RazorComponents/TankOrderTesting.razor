@@ -1,0 +1,239 @@
+@inject IJSRuntime JSRuntime
+@inject GlobalSave GlobalSave
+@using Models.GlobalVariables
+@using Models.Battalions
+@using System.Reflection
+@using System.Text
+
+<style>
+    .draggable-item {
+        cursor: grab;
+    }
+    .draggable-item:hover {
+        color: @(hoverColor);
+        background-color: @(backGroundColor);
+    }
+    .dragging-over {
+        color: red;
+        background-color: #9dbfa7 !important;
+    }
+</style>
+
+<ul class="list-group">
+    @foreach (var item in DynamicItems.OrderBy(item => item.TankOrder))
+    {
+        <li draggable="@IsPlayerUnit"
+            class="list-group-item @(Convert.ToBoolean(IsPlayerUnit) ? "draggable-item" : "") @(IsDraggedOver(item) ? "dragging-over" : "")"
+            style="background-color: #d4f0dc;"
+            @key=@item.TankOrder
+            @onmousedown="@( () => OnMouseDown(item))"
+            @onmouseup="@( () => OnMouseUp(item))"
+            @ondragstart="@( () => OnDragStart(item))"
+            @ondragend="@( () => OnDragEnd(item))"
+            @ondragover:preventDefault
+            @ondragover="@( () => OnDragOver(item))">
+            @item.Name <i class=" @((item == DynamicItems.OrderBy(item => item.TankOrder).FirstOrDefault()) ? "fa-solid fa-shield-halved" : "")" style="color: #13489e;"></i>
+        </li>
+    }
+</ul>
+
+@code {
+    private Item? draggedItem;
+    private Item? targetItem;
+    private string hoverColor = "red";
+    private string backGroundColor = "#9dbfa7";
+    public bool tank = true;
+    int id = 1;
+    private bool isDragging = false;  // Track the drag state
+
+    [Parameter]
+    required public string IsPlayerUnit { get; set; }
+    [Parameter]
+    public object? Battalions { get; set; }
+
+    public class Item {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public int Count { get; set; }
+        public int TankOrder { get; set; }
+    }
+
+    private List<Item> DynamicItems = new();
+    private Dictionary<string, int> previousCounts = new();
+
+    protected override async Task OnInitializedAsync() {
+        await Task.Delay(1);
+        PopulateDynamicItems();
+        GlobalSave.OnPlayerUnitsChanged += UpdateBattalionCounts;
+        await base.OnInitializedAsync();
+    }
+
+    private async Task PopulateDynamicItems() {
+        if (isDragging) return; // Prevent execution if dragging is in progress
+
+        DynamicItems.Clear();
+        await Task.Delay(1); // Ensure Battalions is fully loaded
+
+        foreach (PropertyInfo unit in Battalions.GetType().GetProperties()) {
+            var unitCount = unit.GetValue(Battalions);
+            if (unitCount != null) {
+                var unitProperty = unitCount.GetType().GetProperty("Unit");
+                var countProperty = unitCount.GetType().GetProperty("Count");
+                if (unitProperty != null) {
+                    var unitInstance = unitProperty.GetValue(unitCount);
+                    var numUnits = (int)countProperty.GetValue(unitCount);
+                    var nameProperty = unitInstance.GetType().GetProperty("Name");
+                    var tankProperty = unitInstance.GetType().GetProperty("TankOrder");
+                    var unitName = nameProperty?.GetValue(unitInstance)?.ToString();
+                    var unitTankOrder = Convert.ToInt32(tankProperty?.GetValue(unitInstance));
+
+                    if (!previousCounts.ContainsKey(unitName)) {
+                        previousCounts[unitName] = numUnits;
+                    }
+
+                    if (numUnits > 0 && !DynamicItems.Any(item => item.TankOrder == unitTankOrder)) {
+                        DynamicItems.Add(new Item {
+                            Id = id++,
+                            Name = unitName,
+                            Count = numUnits,
+                            TankOrder = unitTankOrder,
+                        });
+                    }
+                }
+            }
+        }
+
+        // Explicitly trigger a UI update
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private void UpdateBattalionCounts() {
+        if (isDragging) return; // Prevent execution if dragging is in progress
+
+        bool itemsChanged = false;
+
+        foreach (PropertyInfo unit in Battalions.GetType().GetProperties()) {
+            var unitCount = unit.GetValue(Battalions);
+            if (unitCount != null) {
+                var unitProperty = unitCount.GetType().GetProperty("Unit");
+                var countProperty = unitCount.GetType().GetProperty("Count");
+                if (unitProperty != null) {
+                    var unitInstance = unitProperty.GetValue(unitCount);
+                    var numUnits = (int)countProperty.GetValue(unitCount);
+                    var nameProperty = unitInstance.GetType().GetProperty("Name");
+                    var unitName = nameProperty?.GetValue(unitInstance)?.ToString();
+
+                    if (unitName != null && previousCounts.ContainsKey(unitName)) {
+                        if ((previousCounts[unitName] == 0 && numUnits > 0) ||
+                            (previousCounts[unitName] > 0 && numUnits == 0)) {
+                            itemsChanged = true;
+                            previousCounts[unitName] = numUnits;
+                        }
+                    }
+                }
+            }
+        }
+
+        if (itemsChanged) {
+            PopulateDynamicItems();
+        }
+    }
+
+    private bool IsDraggedOver(Item item) {
+        return targetItem != null && targetItem == item;
+    }
+
+    private void OnMouseDown(Item item) {
+        draggedItem = item;
+    }
+
+    private void OnMouseUp(Item item) {
+        draggedItem = null;
+    }
+
+    private async void OnDragStart(Item item) {
+        isDragging = true;  // Set the dragging flag
+        hoverColor = "black";
+        backGroundColor = "#b4d4bd";
+
+        // Ensure UI updates when dragging starts
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async void OnDragEnd(Item item) {
+        targetItem = item;
+        if (draggedItem != null && targetItem != null) {
+            draggedItem = null;
+            targetItem = null;
+        }
+        isDragging = false;  // Reset the dragging flag
+        hoverColor = "red";
+        await Task.Delay(1);
+        ResetItemIds();
+        await InvokeAsync(StateHasChanged);
+    }
+    private void OnDragOver(Item item) {
+        targetItem = item;
+        if (draggedItem != null && targetItem != null && draggedItem != targetItem) {
+            var draggedIndex = DynamicItems.IndexOf(draggedItem);
+            var targetIndex = DynamicItems.IndexOf(targetItem);
+            if (draggedIndex != targetIndex) {
+
+                // Swap TankOrder values
+                int tempOrder = draggedItem.TankOrder;
+                draggedItem.TankOrder = targetItem.TankOrder;
+                targetItem.TankOrder = tempOrder;
+
+                // Update GlobalSave
+                UpdateGlobalSave(draggedItem.Name, draggedItem.TankOrder);
+                UpdateGlobalSave(targetItem.Name, targetItem.TankOrder);
+
+                // Update the list
+                DynamicItems.Remove(draggedItem);
+                DynamicItems.Insert(targetIndex, draggedItem);
+            }
+        }
+    }
+
+    private void ResetItemIds() {
+        int id = 1;
+        foreach (var item in DynamicItems) {
+            item.Id = id++;
+        }
+    }
+
+    private void UpdateGlobalSave(string name, int newOrder) {
+        var battalions = GlobalSave.NewSave.PlayerUnits;
+
+        foreach (PropertyInfo unit in battalions.GetType().GetProperties()) {
+            var unitCount = unit.GetValue(battalions);
+            if (unitCount != null) {
+                var unitProperty = unitCount.GetType().GetProperty("Unit");
+                if (unitProperty != null) {
+                    var unitInstance = unitProperty.GetValue(unitCount);
+                    var nameProperty = unitInstance.GetType().GetProperty("Name");
+                    if (nameProperty?.GetValue(unitInstance)?.ToString() == name) {
+                        var tankProperty = unitInstance.GetType().GetProperty("TankOrder");
+                        tankProperty?.SetValue(unitInstance, newOrder);
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    public void UpdateUnitCount(string unitName, int newCount) {
+        if (isDragging) return; // Prevent execution if dragging is in progress
+
+        foreach (var item in DynamicItems) {
+            if (item.Name == unitName) {
+                item.Count = newCount;
+                if (item.Count <= 0) {
+                    DynamicItems.Remove(item);
+                }
+                break;
+            }
+        }
+        PopulateDynamicItems();
+    }
+}

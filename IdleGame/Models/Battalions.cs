@@ -11,6 +11,7 @@ public class Unit {
     public int MeleeOffence { get; set; } = 0;
     public int MeleeDefence { get; set; } = 0;
     public double? TankEffectiveness {get; set;} = 0.0;
+    public int? TankOrder {get; set;} = 0;
     public int AttackSpeed { get; set; } = 1000;
 }
 
@@ -25,6 +26,7 @@ public class Wizard : Unit {
         MeleeOffence = 1;
         MeleeDefence = 1;
         TankEffectiveness = 0.5;
+        TankOrder = 1;
         AttackSpeed = 1000;
     }
 }
@@ -40,6 +42,7 @@ public class Warrior : Unit {
         MeleeOffence = 5;
         MeleeDefence = 5;
         TankEffectiveness = 0.7;
+        TankOrder = 2;
         AttackSpeed = 1000;
     }
 }
@@ -55,6 +58,7 @@ public class Ranger : Unit {
         MeleeOffence = 1;
         MeleeDefence = 2;
         TankEffectiveness = 0.5;
+        TankOrder = 3;
         AttackSpeed = 1000;
     }
 }
@@ -70,6 +74,7 @@ public class Archmage : Unit {
         MeleeOffence = 1;
         MeleeDefence = 2;
         TankEffectiveness = 0.6;
+        TankOrder = 4;
         AttackSpeed = 1000;
     }
 }
@@ -85,6 +90,7 @@ public class Cannoneer : Unit {
         MeleeOffence = 1;
         MeleeDefence = 2;
         TankEffectiveness = 0.6;
+        TankOrder = 5;
         AttackSpeed = 1000;
     }
 }
@@ -100,6 +106,7 @@ public class Cavalry : Unit {
         MeleeOffence = 10;
         MeleeDefence = 2;
         TankEffectiveness = 0.75;
+        TankOrder = 6;
         AttackSpeed = 1000;
     }
 }
@@ -115,6 +122,7 @@ public class TutorialBoss : Unit {
         MeleeOffence = 250;
         MeleeDefence = 10000;
         TankEffectiveness = 0.9;
+        TankOrder = 7;
         AttackSpeed = 1000;
     }
 }

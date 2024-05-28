@@ -44,11 +44,11 @@
         />
         <h3 style = "text-align: center;">Tank Order</h3>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-            <div><div style="text-align: center;">Player</div>
-                <IdleGame.RazorComponents.TankOrder IsPlayerUnit="true" Battalions="GlobalSave.NewSave.PlayerUnits"/>
+            <div><div style="text-align: center;"><i class="fa-solid fa-crown" style="color: #dfbf4e;"></i> &nbsp;Player</div>
+                <IdleGame.RazorComponents.TankOrderTesting IsPlayerUnit="true" Battalions="GlobalSave.NewSave.PlayerUnits"/>
             </div>
-            <div><div style="text-align: center;"><i class="fa-solid fa-crown" style="color: #dfbf4e;"></i> &nbsp;Enemy</div>
-            <IdleGame.RazorComponents.TankOrder Battalions="GlobalSave.NewSave.EnemyUnits" IsPlayerUnit="false"/>
+            <div><div style="text-align: center;"><i class="fa-solid fa-skull" style="color: #301012"></i> &nbsp;Enemy</div>
+            <IdleGame.RazorComponents.TankOrderTesting Battalions="GlobalSave.NewSave.EnemyUnits" IsPlayerUnit="false"/>
             </div>
         </div>
     </div>
@@ -61,9 +61,11 @@
 </div>
 
 <button @onclick="BuildWizard">Wizard +5</button> 
+<button @onclick="DeleteAllWizards">Delete Wizards</button> 
 <button @onclick="DamageCalculator">@($"pDamage:{playerDamage}, eDamage:{enemyDamage}")</button>
 <button @onclick="ResetFile">RESET FILE</button>
 <button @onclick="Pause"> Pause Timer</button>
+<button @onclick="ThreeSecondUnitUpdater">3 Second ++</button>
 
 
 
@@ -124,6 +126,11 @@
             GlobalSave.OnTimeChanged += SaveLocalStorage;
         }
     }
+
+    public async Task ThreeSecondUnitUpdater(){
+        await Task.Delay(3000);
+        GlobalSave.NewSave.PlayerUnits.Wizards.Count ++;
+    }
     
     [JSInvokable]
     public static async Task OnTimerTick() {
@@ -132,12 +139,12 @@
     }
     // Currently responsible for using javascript web worker to save current save to local storage
     private void SaveLocalStorage() {
-        GlobalSave.NewSave.PlayerUnits.Wizards.Count ++;
+        @* GlobalSave.NewSave.PlayerUnits.Wizards.Count ++;
         GlobalSave.NewSave.PlayerUnits.Warriors.Count ++;
         GlobalSave.NewSave.PlayerUnits.Rangers.Count ++;
         GlobalSave.NewSave.PlayerUnits.Archmages.Count ++;
         GlobalSave.NewSave.PlayerUnits.Cavalry.Count ++;
-        GlobalSave.NewSave.PlayerUnits.Cannoneers.Count ++;
+        GlobalSave.NewSave.PlayerUnits.Cannoneers.Count ++; *@
         localStorage.SetItemAsync<EmptySave>("saveState", GlobalSave.NewSave);
         GlobalSave.NotifyPlayerUnitsChanged();
         InvokeAsync(StateHasChanged);
@@ -351,6 +358,11 @@
             
         }
     
+    }
+
+    public void DeleteAllWizards() {
+        GlobalSave.NewSave.PlayerUnits.Wizards.Count = 0;
+        GlobalSave.NotifyPlayerUnitsChanged();
     }
      private async Task HandleSubmit(string titleAndName)
     {
