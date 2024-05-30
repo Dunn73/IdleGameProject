@@ -145,9 +145,9 @@ public record EmptySave {
 public record TutorialSave: EmptySave {
     public TutorialSave() : base() {
         PlayerUnits = new PlayerBattalions {
-            Wizards = new UnitCount<Wizard>() {Count = 250},
-            Warriors = new UnitCount<Warrior>() {Count = 250},
-            Rangers = new UnitCount<Ranger>() {Count = 250},
+            Wizards = new UnitCount<Wizard>() {Count = 500},
+            Warriors = new UnitCount<Warrior>() {Count = 500},
+            Rangers = new UnitCount<Ranger>() {Count = 500},
             Archmages = new UnitCount<Archmage>() {Count = 5},
             Cannoneers = new UnitCount<Cannoneer>() {Count = 5},
             Cavalry = new UnitCount<Cavalry>() {Count = 5},

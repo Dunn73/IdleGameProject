@@ -4,7 +4,7 @@ self.onmessage = function(e) {
     } else if (e.data === 'kingdomCombatStop') {
         stopTimer();
     }
-};
+}; 
 
 let timerId;
 

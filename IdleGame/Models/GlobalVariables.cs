@@ -17,6 +17,9 @@ public class GlobalSave {
     public static void NotifyTimeChanged() => OnTimeChanged?.Invoke();
     public static event Action? OnPlayerUnitsCreatedOrDestroyed;
     public static void NotifyPlayerUnitsCreatedOrDestroyed() => OnPlayerUnitsCreatedOrDestroyed?.Invoke();
+    public static event Action? OnProgressChanged;
+    public static void NotifyProgressChanged() => OnProgressChanged?.Invoke();
+    public static int ProgressTicks {get; set;} = 0;
 }
 
 public class GlobalPage {

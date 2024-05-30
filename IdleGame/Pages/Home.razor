@@ -11,6 +11,7 @@
 @using Models.GlobalVariables;
 @using Models.SaveState;
 @using System.Reflection
+@using System.Timers
 
 
 <PageTitle>Kingdom</PageTitle>
@@ -18,6 +19,20 @@
 <style>
     body {
         background-color: #e8fcee;
+    }
+     .progress-bar {
+        width: 100%;
+        background-color: #e0e0e0;
+        border-radius: 10px;
+        overflow: hidden;
+        height: 30px;
+    }
+
+    .progress-bar-fill {
+        height: 100%;
+        background-color: #76c7c0;
+        width: 0%;
+        transition: linear;
     }
 </style>
 
@@ -42,6 +57,11 @@
         EnemyTotalHealth ="enemyTotalHealth" EnemyTotalMageOffence="enemyTotalMageOffence" EnemyTotalMageDefence="enemyTotalMageDefence" EnemyTotalRangeOffence="enemyTotalRangeOffence"
         EnemyTotalRangeDefence="enemyTotalRangeDefence" EnemyTotalMeleeOffence="enemyTotalMeleeOffence" EnemyTotalMeleeDefence="enemyTotalMeleeDefence"
         />
+
+        <div class="progress-bar">
+    <div id="progressBarFill" class="progress-bar-fill"></div>
+</div>
+
         <h3 style = "text-align: center;">Tank Order</h3>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
             <div><div style="text-align: center;"><i class="fa-solid fa-crown" style="color: #dfbf4e;"></i> &nbsp;Player</div>
@@ -59,6 +79,7 @@
         <IdleGame.RazorComponents.UnitsRemaining Battalions="GlobalSave.NewSave.EnemyUnits"/> 
     </div>
 </div>
+<div>@($"Clock Ticks: {clockTicks}")</div>
 
 <button @onclick="BuildWizard">Wizard +5</button> 
 <button @onclick="DeleteAllWizards">Delete Wizards</button> 
@@ -67,13 +88,12 @@
 <button @onclick="Pause"> Pause Timer</button>
 <button @onclick="ThreeSecondUnitUpdater">3 Second ++</button>
 <button @onclick="DamageCalculator">@($"pDamage:{playerDamage}, eDamage:{enemyDamage}")</button>
-
-
+<button @onclick="StartCombat">Start Combat</button>
+<button @onclick="StopCombat">StopCombat</button>
 
 @code {
+    static int clockTicks;
     bool paused = false;
-    @* public CancellationTokenSource cancellationTokenSource;
-    public  CancellationToken cancellationToken; *@
     bool showModal = false;
     bool shouldRender = true;
     int currentAnimation = 3;
@@ -85,22 +105,23 @@
     int currentTotalRangeDefence = 0;
     int currentTotalMeleeOffence = 0;
     int currentTotalMeleeDefence = 0;
-    int playerTotalHealth = 0;
-    int playerTotalMageOffence = 0;
-    int playerTotalMageDefence = 0;
-    int playerTotalRangeOffence = 0;
-    int playerTotalRangeDefence = 0;
-    int playerTotalMeleeOffence = 0;
-    int playerTotalMeleeDefence = 0;
-    int enemyTotalHealth = 0;
-    int enemyTotalMageOffence = 0;
-    int enemyTotalMageDefence = 0;
-    int enemyTotalRangeOffence = 0;
-    int enemyTotalRangeDefence = 0;
-    int enemyTotalMeleeOffence = 0;
-    int enemyTotalMeleeDefence = 0;
-    long playerDamage = 0;
-    long enemyDamage = 0;
+    static int playerTotalHealth = 0;
+    static int playerTotalMageOffence = 0;
+    static int playerTotalMageDefence = 0;
+    static int playerTotalRangeOffence = 0;
+    static int playerTotalRangeDefence = 0;
+    static int playerTotalMeleeOffence = 0;
+    static int playerTotalMeleeDefence = 0;
+    static int enemyTotalHealth = 0;
+    static int enemyTotalMageOffence = 0;
+    static int enemyTotalMageDefence = 0;
+    static int enemyTotalRangeOffence = 0;
+    static int enemyTotalRangeDefence = 0;
+    static int enemyTotalMeleeOffence = 0;
+    static int enemyTotalMeleeDefence = 0;
+    static long playerDamage = 0;
+    static long enemyDamage = 0;
+
     
     protected override async Task OnInitializedAsync(){
         GlobalSave.OnPlayerUnitsChanged += StatUpdater;
@@ -124,9 +145,19 @@
             GlobalVariable.FirstRender = false;
             GlobalBool.TimerStarted = true;
             await JSRuntime.InvokeVoidAsync("timerWorker.resourceStart");
-            await JSRuntime.InvokeVoidAsync("timerWorker.kingdomCombatStart");
             GlobalSave.OnTimeChanged += SaveLocalStorage;
+
         }
+
+    }
+
+     private async Task StartCombat() {
+        await JSRuntime.InvokeVoidAsync("timerWorker.kingdomCombatStart");
+        await JSRuntime.InvokeVoidAsync("startGameLoop");
+    }
+
+    private async Task StopCombat() {
+        await JSRuntime.InvokeVoidAsync("stopGameLoop");
     }
 
     public async Task ThreeSecondUnitUpdater(){
@@ -137,34 +168,30 @@
     
     [JSInvokable]
     public static async Task OnResourceTick() {
-        Console.WriteLine("Resource tick");
         GlobalSave.NotifyTimeChanged();
         await Task.CompletedTask;
     }
     [JSInvokable]
     public static async Task OnKingdomCombatTick() {
+        await KingdomCombat();
         await Task.CompletedTask;
-        
+        GlobalSave.NotifyPlayerUnitsChanged();
     }
+
     // Currently responsible for using javascript web worker to save current save to local storage
     private void SaveLocalStorage() {
-        @* GlobalSave.NewSave.PlayerUnits.Wizards.Count ++; *@
-        @* GlobalSave.NewSave.PlayerUnits.Warriors.Count ++;
-        GlobalSave.NewSave.PlayerUnits.Rangers.Count ++;
-        GlobalSave.NewSave.PlayerUnits.Archmages.Count ++;
-        GlobalSave.NewSave.PlayerUnits.Cavalry.Count ++;
-        GlobalSave.NewSave.PlayerUnits.Cannoneers.Count ++; *@
         localStorage.SetItemAsync<EmptySave>("saveState", GlobalSave.NewSave);
-        GlobalSave.NotifyPlayerUnitsChanged();
         InvokeAsync(StateHasChanged);
     }
-    [JSInvokable]
+    @* [JSInvokable] *@
     public async Task Dispose() {
-        await JSRuntime.InvokeVoidAsync("timerWorker.stop");
+        await JSRuntime.InvokeVoidAsync("timerWorker.resourceStop");
+        await JSRuntime.InvokeVoidAsync("timerWorker.kingdomCombatStop");
     }
     [JSInvokable]
     public async Task JsTimerStart() {
-        await JSRuntime.InvokeVoidAsync("timerWorker.start");
+        await JSRuntime.InvokeVoidAsync("timerWorker.resourceStart");
+        await JSRuntime.InvokeVoidAsync("timerWorker.kingdomCombatStart");
     }
     public async Task Pause() {
         if (paused == true) {
@@ -269,7 +296,7 @@
         // Update the ui to reflect changes
         InvokeAsync(StateHasChanged);
     }
-    public async Task DamageCalculator() {
+    public static async Task DamageCalculator() {
         playerDamage = 0;
         enemyDamage = 0;    
         // Determine player's damage
@@ -281,9 +308,13 @@
 
         }
         else {
-            double mageRatio = 0;
-            mageRatio = Math.Log((playerTotalMageOffence - enemyTotalMageDefence), 10);
-            playerDamage += (int)(playerTotalMageOffence*mageRatio);
+            double mageRatio = Math.Log((playerTotalMageOffence - enemyTotalMageDefence), 10);
+            if (mageRatio > 1){
+                 playerDamage += (int)(playerTotalMageOffence*mageRatio);
+            }
+            else {
+                playerDamage += playerTotalMageOffence;
+            }
         }
 
         if (playerTotalRangeOffence <= enemyTotalRangeDefence) {
@@ -294,9 +325,13 @@
 
         }
         else {
-            double rangeRatio = 0;
-            rangeRatio = Math.Log((playerTotalRangeOffence - enemyTotalRangeDefence), 10);
-            playerDamage += (int)(playerTotalRangeOffence*rangeRatio);
+            double rangeRatio = Math.Log((playerTotalRangeOffence - enemyTotalRangeDefence), 10);
+            if (rangeRatio > 1){
+                playerDamage += (int)(playerTotalRangeOffence*rangeRatio);
+            }
+            else {
+                playerDamage += playerTotalRangeOffence;
+            }
         }
 
         if (playerTotalMeleeOffence <= enemyTotalMeleeDefence) {
@@ -307,9 +342,13 @@
 
         }
         else {
-            double meleeRatio = 0;
-            meleeRatio = Math.Log((playerTotalMeleeOffence - enemyTotalMeleeDefence), 10);
-            playerDamage += (int)(playerTotalMeleeOffence*meleeRatio);
+            double meleeRatio = Math.Log((playerTotalMeleeOffence - enemyTotalMeleeDefence), 10);
+            if (meleeRatio > 1){
+                playerDamage += (int)(playerTotalMeleeOffence*meleeRatio);
+            }
+            else {
+                playerDamage += playerTotalMeleeOffence;
+            }
         }
 
         // Determine enemy's damage
@@ -321,9 +360,13 @@
 
         }
         else {
-            double mageRatio = 0;
-            mageRatio = Math.Log((enemyTotalMageOffence - playerTotalMageDefence), 10);
-            enemyDamage += (int)(enemyTotalMageOffence*mageRatio);
+            double mageRatio = Math.Log((enemyTotalMageOffence - playerTotalMageDefence), 10);
+            if (mageRatio > 1){
+                enemyDamage += (int)(enemyTotalMageOffence*mageRatio);
+            }
+            else {
+                enemyDamage += enemyTotalMageOffence;
+            }
         }
 
         if (enemyTotalRangeOffence <= playerTotalRangeDefence) {
@@ -334,9 +377,13 @@
 
         }
         else {
-            double rangeRatio = 0;
-            rangeRatio = Math.Log((enemyTotalRangeOffence - playerTotalRangeDefence), 10);
-            enemyDamage += (int)(enemyTotalRangeOffence*rangeRatio);
+            double rangeRatio = Math.Log((enemyTotalRangeOffence - playerTotalRangeDefence), 10);
+            if (rangeRatio > 1){
+                 enemyDamage += (int)(enemyTotalRangeOffence*rangeRatio);
+            }
+            else {
+                enemyDamage += enemyTotalMeleeOffence;
+            }
         }
 
         if (enemyTotalMeleeOffence <= playerTotalMeleeDefence) {
@@ -347,14 +394,18 @@
 
         }
         else {
-            double meleeRatio = 0;
-            meleeRatio = Math.Log((enemyTotalMeleeOffence - playerTotalMeleeDefence), 10);
-            enemyDamage += (int)(enemyTotalMeleeOffence*meleeRatio);
+            double meleeRatio = Math.Log((enemyTotalMeleeOffence - playerTotalMeleeDefence), 10);
+            if (meleeRatio >1){
+                enemyDamage += (int)(enemyTotalMeleeOffence*meleeRatio);
+            }
+            else {
+                enemyDamage += enemyTotalMeleeOffence;
+            }
 
         }
     }
 
-    public async Task DamageUpdater(object battalions, bool isPlayer) {
+    public static async Task DamageUpdater(object battalions, bool isPlayer) {
     // Calculate how much damage the player and enemy will do to each other
 
     // Create a list to hold units with Count > 0
@@ -450,7 +501,8 @@
     }
 }
 
-    private async Task KingdomCombat() {
+    private static async Task KingdomCombat() {
+        GlobalSave.NotifyPlayerUnitsChanged();
         await DamageCalculator();
         await DamageUpdater(GlobalSave.NewSave.PlayerUnits, true);
         await DamageUpdater(GlobalSave.NewSave.EnemyUnits, false);

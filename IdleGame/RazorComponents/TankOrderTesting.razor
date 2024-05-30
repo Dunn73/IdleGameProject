@@ -64,7 +64,7 @@
 
     protected override async Task OnInitializedAsync() {
         await Task.Delay(1);
-        PopulateDynamicItems();
+        await PopulateDynamicItems();
 
         GlobalSave.OnPlayerUnitsChanged += UpdateBattalionCounts;
         
@@ -123,15 +123,15 @@
                 var countProperty = unitCount.GetType().GetProperty("Count");
                 if (unitProperty != null) {
                     var unitInstance = unitProperty.GetValue(unitCount);
-                    var numUnits = (int)countProperty.GetValue(unitCount);
-                    var nameProperty = unitInstance.GetType().GetProperty("Name");
+                    var numUnits = (int?)countProperty?.GetValue(unitCount);
+                    var nameProperty = unitInstance?.GetType().GetProperty("Name");
                     var unitName = nameProperty?.GetValue(unitInstance)?.ToString();
 
                     if (unitName != null && previousCounts.ContainsKey(unitName)) {
                         if ((previousCounts[unitName] == 0 && numUnits > 0) ||
                             (previousCounts[unitName] > 0 && numUnits == 0)) {
                             itemsChanged = true;
-                            previousCounts[unitName] = numUnits;
+                            previousCounts[unitName] = (int)numUnits;
                         }
                     }
                 }

@@ -3,7 +3,6 @@ window.timerWorker = {
     combatWorker: null,
 
     resourceStart: function () {
-        console.log('resourceStart called'); // Log to verify function call
         if (!this.resourceWorker) {
             this.resourceWorker = new Worker('/js/resourceWorkerTimer.js');
             this.resourceWorker.onmessage = function (e) {
@@ -16,7 +15,6 @@ window.timerWorker = {
     },
 
     resourceStop: function () {
-        console.log('resourceStop called'); // Log to verify function call
         if (this.resourceWorker) {
             this.resourceWorker.postMessage('resourceStop');
             this.resourceWorker.terminate();
@@ -25,7 +23,6 @@ window.timerWorker = {
     },
 
     kingdomCombatStart: function () {
-        console.log('kingdomCombatStart called'); // Log to verify function call
         if (!this.combatWorker) {
             this.combatWorker = new Worker('/js/kingdomCombatTimer.js');
             this.combatWorker.onmessage = function (e) {
@@ -38,8 +35,7 @@ window.timerWorker = {
     },
 
     kingdomCombatStop: function () {
-        console.log('kingdomCombatStop called'); // Log to verify function call
-        if (this.combatWorker) {
+        if (this.   mbatWorker) {
             this.combatWorker.postMessage('kingdomCombatStop');
             this.combatWorker.terminate();
             this.combatWorker = null;
