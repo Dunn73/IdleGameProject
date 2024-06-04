@@ -3,7 +3,7 @@ let lastTimestamp = 0;
 
 function gameLoop(timestamp) {
     if (!lastTimestamp) lastTimestamp = timestamp;
-    const deltaTime = timestamp - lastTimestamp;
+    const deltaTime = Math.min(timestamp - lastTimestamp, 1000); // Cap deltaTime to 100ms
     lastTimestamp = timestamp;
 
     updateProgressBar(deltaTime);
@@ -22,7 +22,6 @@ function updateProgressBar(deltaTime) {
             // Disable transition
             progressBarFill.style.transition = 'none';
             progressBarFill.style.width = currentWidth + '%';
-            
         } else {
             progressBarFill.style.width = currentWidth + '%';
         }

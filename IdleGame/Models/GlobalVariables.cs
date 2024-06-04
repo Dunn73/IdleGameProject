@@ -15,11 +15,8 @@ public class GlobalSave {
     public static void NotifyPlayerUnitsChanged() => OnPlayerUnitsChanged?.Invoke();
     public static event Action? OnTimeChanged;
     public static void NotifyTimeChanged() => OnTimeChanged?.Invoke();
-    public static event Action? OnPlayerUnitsCreatedOrDestroyed;
-    public static void NotifyPlayerUnitsCreatedOrDestroyed() => OnPlayerUnitsCreatedOrDestroyed?.Invoke();
-    public static event Action? OnProgressChanged;
-    public static void NotifyProgressChanged() => OnProgressChanged?.Invoke();
-    public static int ProgressTicks {get; set;} = 0;
+    public static event Action? OnKingdomCombat;
+    public static void NotifyKingdomCombat() => OnKingdomCombat?.Invoke();
 }
 
 public class GlobalPage {

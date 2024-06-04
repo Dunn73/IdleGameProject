@@ -10,8 +10,9 @@
 @using Models.Battalions
 @using Models.GlobalVariables;
 @using Models.SaveState;
-@using System.Reflection
-@using System.Timers
+@using System.Reflection;
+@using System.Timers;
+@using RazorComponents;
 
 
 <PageTitle>Kingdom</PageTitle>
@@ -63,23 +64,23 @@
 </div>
 
         <h3 style = "text-align: center;">Tank Order</h3>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-            <div><div style="text-align: center;"><i class="fa-solid fa-crown" style="color: #dfbf4e;"></i> &nbsp;Player</div>
+        <div style="display: grid;">
+            <IdleGame.RazorComponents.TankOrder PlayerBattalions="GlobalSave.NewSave.PlayerUnits" EnemyBattalions="GlobalSave.NewSave.EnemyUnits" />
+            @* <div><div style="text-align: center;"><i class="fa-solid fa-crown" style="color: #dfbf4e;"></i> &nbsp;Player</div>
                 <IdleGame.RazorComponents.TankOrderTesting IsPlayerUnit="true" Battalions="GlobalSave.NewSave.PlayerUnits"/>
             </div>
             <div><div style="text-align: center;"><i class="fa-solid fa-skull" style="color: #301012"></i> &nbsp;Enemy</div>
             <IdleGame.RazorComponents.TankOrderTesting Battalions="GlobalSave.NewSave.EnemyUnits" IsPlayerUnit="false"/>
-            </div>
+            </div> *@
         </div>
     </div>
     <div>
-        @* <IdleGame.RazorComponents.Castle CurrentAnimation="currentAnimation"/> *@
         <img src="TrollWizardHighRes.png" alt="Ascii Troll" style="width: 100%; height: 360px;">
         <h3 style = "text-align: center;">Enemy Units</h3>
-        <IdleGame.RazorComponents.UnitsRemaining Battalions="GlobalSave.NewSave.EnemyUnits"/> 
+        <IdleGame.RazorComponents.UnitsRemaining Battalions="GlobalSave.NewSave.EnemyUnits"/>
     </div>
 </div>
-<div>@($"Clock Ticks: {clockTicks}")</div>
+<div>@($"Clock Ticks: {clockTicks/5}")</div>
 
 <button @onclick="BuildWizard">Wizard +5</button> 
 <button @onclick="DeleteAllWizards">Delete Wizards</button> 
@@ -89,10 +90,10 @@
 <button @onclick="ThreeSecondUnitUpdater">3 Second ++</button>
 <button @onclick="DamageCalculator">@($"pDamage:{playerDamage}, eDamage:{enemyDamage}")</button>
 <button @onclick="StartCombat">Start Combat</button>
-<button @onclick="StopCombat">StopCombat</button>
+<button @onclick="ProgressTimer">StopCombat</button>
 
 @code {
-    static int clockTicks;
+    static double clockTicks;
     bool paused = false;
     bool showModal = false;
     bool shouldRender = true;
@@ -145,7 +146,10 @@
             GlobalVariable.FirstRender = false;
             GlobalBool.TimerStarted = true;
             await JSRuntime.InvokeVoidAsync("timerWorker.resourceStart");
+            await JSRuntime.InvokeVoidAsync("timerWorker.kingdomCombatStart");
+            await StartCombat();
             GlobalSave.OnTimeChanged += SaveLocalStorage;
+            GlobalSave.OnKingdomCombat += ProgressTimer;
 
         }
 
@@ -156,8 +160,10 @@
         await JSRuntime.InvokeVoidAsync("startGameLoop");
     }
 
-    private async Task StopCombat() {
+    private async void ProgressTimer() {
         await JSRuntime.InvokeVoidAsync("stopGameLoop");
+        await JSRuntime.InvokeVoidAsync("startGameLoop");
+        Console.WriteLine("Progress Timer Called");
     }
 
     public async Task ThreeSecondUnitUpdater(){
@@ -168,14 +174,17 @@
     
     [JSInvokable]
     public static async Task OnResourceTick() {
+        clockTicks ++;
         GlobalSave.NotifyTimeChanged();
         await Task.CompletedTask;
     }
     [JSInvokable]
     public static async Task OnKingdomCombatTick() {
-        await KingdomCombat();
+        //await KingdomCombat();                                //Turn on or off combat
+        GlobalSave.NotifyKingdomCombat();
         await Task.CompletedTask;
         GlobalSave.NotifyPlayerUnitsChanged();
+        
     }
 
     // Currently responsible for using javascript web worker to save current save to local storage
@@ -222,15 +231,17 @@
             if (unitCount != null){
                 var unitProperty = unitCount.GetType().GetProperty("Unit");
                 var countProperty = unitCount.GetType().GetProperty("Count");
+                var hpProperty = unitCount.GetType().GetProperty("HP");
                 if (unitProperty != null){
                     var unitInstance = unitProperty.GetValue(unitCount);
                     var numUnits = countProperty.GetValue(unitCount);
+                    var unitHp = hpProperty.GetValue(unitCount);
                     foreach (var property in unitInstance.GetType().GetProperties()){
 
                     // Add each unit's property values to the corresponding totals
                     switch (property.Name) {
                         case "Health":
-                            totalHealth += ((int)property.GetValue(unitInstance) * Convert.ToInt32(numUnits));
+                            totalHealth += (((int)property.GetValue(unitInstance) * Convert.ToInt32(numUnits)) - ((int)property.GetValue(unitInstance) - (int)unitHp));
                             break;
                         case "MagicOffence":
                             totalMageOffence += ((int)property.GetValue(unitInstance) * Convert.ToInt32(numUnits));
